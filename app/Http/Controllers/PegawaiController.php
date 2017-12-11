@@ -53,7 +53,7 @@ class PegawaiController extends Controller
         $pegawai = new Pegawai();
         $pegawai->nama = $request->nama;
         $pegawai->email = $request->email;
-        $pegawai->password = $request->password;
+        $pegawai->password = bcrypt($request->password);
         $pegawai->status = $request->status;
         $pegawai->save();
 
@@ -102,7 +102,9 @@ class PegawaiController extends Controller
 
         $pegawai->nama = $request->nama;
         $pegawai->email = $request->email;
-        $pegawai->password = $request->password;
+        if (!is_null($request->password)) {
+            $pegawai->password = bcrypt($request->password);
+        }
         $pegawai->status = $request->status;
         $pegawai->save();
 

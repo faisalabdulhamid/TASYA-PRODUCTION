@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Entities\Kriteria;
+use App\Entities\KriteriaDistributor as Kriteria;
 use Illuminate\Http\Request;
 
-class KriteriaController extends Controller
+class KriteriaDistributorController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -19,6 +19,10 @@ class KriteriaController extends Controller
 
             return response()->json($kriterium);
         }
+        $title = 'Kriteria Distibutor';
+        $script = asset('js/kriteria-distibutor.js');
+
+        return view('index', compact('title', 'script'));
     }
 
     /**
@@ -42,11 +46,13 @@ class KriteriaController extends Controller
         $this->validate($request, [
             'kriteria' => 'required',
             'bobot' => 'required',
+            'benefit' => 'required',
         ]);
 
         $kriterium = new Kriteria();
         $kriterium->kriteria = $request->kriteria;
         $kriterium->bobot = $request->bobot;
+        $kriterium->benefit = $request->benefit;
         $kriterium->save();
 
         return response()->json([
@@ -60,9 +66,10 @@ class KriteriaController extends Controller
      * @param  \App\Entities\Kriteria  $kriterium
      * @return \Illuminate\Http\Response
      */
-    public function show(Kriteria $kriterium)
+    public function show($kriterium)
     {
-        return response()->json($kriterium);
+        $kriteria = Kriteria::find($kriterium);
+        return response()->json($kriteria);
     }
 
     /**
@@ -83,16 +90,18 @@ class KriteriaController extends Controller
      * @param  \App\Entities\Kriteria  $kriterium
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Kriteria $kriterium)
+    public function update(Request $request, $kriterium)
     {
         $this->validate($request, [
             'kriteria' => 'required',
             'bobot' => 'required',
         ]);
 
-        $kriterium->kriteria = $request->kriteria;
-        $kriterium->bobot = $request->bobot;
-        $kriterium->save();
+        $kriteria = Kriteria::find($kriterium);
+        $kriteria->kriteria = $request->kriteria;
+        $kriteria->bobot = $request->bobot;
+        $kriteria->benefit = $request->benefit;
+        $kriteria->save();
 
         return response()->json([
             'message' => 'Data Berhasil Diubah'
@@ -105,9 +114,10 @@ class KriteriaController extends Controller
      * @param  \App\Entities\Kriteria  $kriterium
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Kriteria $kriterium)
+    public function destroy($kriterium)
     {
-        $kriterium->delete();
+        $kriteria = Kriteria::find($kriterium);
+        $kriteria->delete();
 
         return response()->json([
             'message' => 'Data Berhasil Dihapus'

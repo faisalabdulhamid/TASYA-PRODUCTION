@@ -14,7 +14,7 @@
 	              			<tr>
 	              				<th>Pelanggan</th>
 	              				<td>:</td>
-	              				<td>{{ data.pelanggan }}</td>
+	              				<td>{{ data.nama_pelanggan }}</td>
 	              			</tr>
 	              			<tr>
 	              				<th>Tanggal</th>
@@ -38,17 +38,17 @@
 		              						</tr>
 		              					</thead>
 		              					<tbody>
-		              						<tr>
-		              							<td></td>
-		              							<td></td>
-		              							<td></td>
-		              							<td></td>
+		              						<tr v-for="item in data.produks">
+		              							<td>{{ item.nama }}</td>
+		              							<td>{{ item.jumlah }}</td>
+		              							<td>{{ item.harga }}</td>
+		              							<td>{{ item.jumlah * item.harga }}</td>
 		              						</tr>
 		              					</tbody>
 		              					<tfoot>
 		              						<tr>
 		              							<th colspan="3" class="text-right"></th>
-		              							<th>30000</th>
+		              							<th>{{ data.total_bayar }}</th>
 		              						</tr>
 		              					</tfoot>
 		              				</table>
@@ -63,8 +63,6 @@
 </template>
 
 <script>
-	import { mapActions, mapGetters} from 'vuex'
-
 	export default{
 		name: 'Show',
 		props: ['id'],
@@ -73,32 +71,16 @@
 				data: {}
 			}
 		},
-		computed:{
-			...mapGetters({
-				token: 'oauth'
-			})
-		},
 		methods:{
-			...mapActions({
-				'Oauth': 'setOauth',
-			}),
 			getData(){
 				let that = this
-				that.$http.get('/'+that.id, {
-					headers: {
-						Authorization: that.token.token_type+' '+that.token.access_token
-					}
+				that.$http.get('/'+that.id)
+				.then(res => {
+					Vue.set(that.$data, 'data', res.data)
 				})
-					.then(res => {
-						Vue.set(that.$data, 'data', res.data)
-					})
-					.catch(error => {
-						console.log(error)
-					})
 			}
 		},
 		beforeMount(){
-			this.Oauth()
 			this.getData()
 		}
 	}

@@ -32,7 +32,8 @@
 							<label for="status" class="control-label col-md-2">Status</label>
 							<div class="col-md-10">
 								<select class="form-control" id="status" v-model="data.status">
-									<option value=""></option>
+									<option value="marketing">Marketing</option>
+									<option value="admin">Admin</option>
 								</select>
 							</div>
 						</div>
@@ -45,8 +46,6 @@
 </template>
 
 <script>
-	import { mapActions, mapGetters} from 'vuex'
-
 	export default{
 		name: 'Edit',
 		props: ['id'],
@@ -55,38 +54,18 @@
 				data: {}
 			}
 		},
-		computed:{
-			...mapGetters({
-				token: 'oauth'
-			})
-		},
 		methods:{
-			...mapActions({
-				'Oauth': 'setOauth',
-				getData(){
-					let that = this
-					that.$http.get('/'+that.id, {
-						headers: {
-							Authorization: that.token.token_type+' '+that.token.access_token
-						}
-					}).then(res => {
-						Vue.set(that.$data, 'data', res.data)
-					}).catch(error => {
-						this.$swal({
-						  title: error.response.data.message,
-						  type: 'error',
-						  timer: 5000,
-						})
-					})
-				},
-				simpan(){
-					let that = this
-					that.$http.put('/'+that.id, that.data,{
-						headers: {
-							Authorization: that.token.token_type+' '+that.token.access_token
-						}
-					}).then(res => {
-						console.log(res)
+			getData(){
+				let that = this
+				that.$http.get('/'+that.id)
+				.then(res => {
+					Vue.set(that.$data, 'data', res.data)
+				})
+			},
+			simpan(){
+				let that = this
+				that.$http.put('/'+that.id, that.data)
+					.then(res => {	
 						that.$swal({
 							title: res.data.message,
 							type: "success",
@@ -94,25 +73,8 @@
 						}).then(() => {
 							that.$router.push({name: 'index'})
 						})
-					}).catch(error => {
-						// console.log(error)
-						var contentHtml = '';
-						Object.keys(error.response.data.errors).forEach((key) => {
-							contentHtml +=  '<p class="text-danger">'+error.response.data.errors[key][0]+'</p>'
-						})
-						
-						this.$swal({
-						  title: error.response.data.message,
-						  html: contentHtml,
-						  type: 'error',
-						  timer: 5000,
-						})
 					})
-				}
-			}),
-		},
-		created(){
-			this.Oauth()
+			}
 		},
 		beforeMount(){
 			this.getData()

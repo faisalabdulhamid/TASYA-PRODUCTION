@@ -16,7 +16,7 @@ class CreatePesanansTable extends Migration
         Schema::create('pesanan', function (Blueprint $table) {
             $table->increments('id');
             $table->date('tanggal');
-            $table->unsignedInteger('total_bayar');
+            // $table->unsignedInteger('total_bayar');
             $table->timestamps();
 
             $table->unsignedInteger('pelanggan_id');

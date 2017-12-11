@@ -45,19 +45,21 @@ class PesananController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'tanggal' => 'required',
+            'pelanggan' => 'required',
             'total_bayar' => 'required',
-            'produks' => 'required',
+            '*.*.produk_id' => 'required',
+            '*.*.jumlah' => 'required',
+            '*.*.sub_total' => 'required',
         ]);
 
         DB::transaction(function() use($request){
             $pesanan = new Pesanan();
-            $pesanan->tanggal = $request->tanggal;
-            $pesanan->total_bayar = $request->total_bayar;
+            $pesanan->pelanggan_id = $request->pelanggan;
+            // $pesanan->total_bayar = $request->total_bayar;
             // $pesanan->produks = $request->produks;
             $pesanan->save();    
             foreach ($request->produks as $key => $value) {
-                $pesanan->produks()->attach($value['produk_id'], ['jumlah' => $value['jumlah']]);
+                $pesanan->produks()->attach($value['produk_id'], ['jumlah' => $value['jumlah'], 'sub_total' => $value['sub_total']]);
             }
         });
         
@@ -73,8 +75,11 @@ class PesananController extends Controller
      * @param  \App\Entities\Pesanan  $pesanan
      * @return \Illuminate\Http\Response
      */
-    public function show(Pesanan $pesanan)
+    public function show($id)
     {
+        $pesanan = Pesanan::with(['produks' => function($q){
+            $q->select('kode', 'nama', 'harga', 'jumlah');
+        }])->get()->find($id);
         return response()->json($pesanan);
     }
 

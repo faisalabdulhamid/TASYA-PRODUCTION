@@ -47,12 +47,16 @@ class ProdukController extends Controller
             'nama' => 'required',
             'kode' => 'required|unique:produk',
             'harga' => 'required',
+            'gambar' => 'required',
+            'deskripsi' => 'required',
         ]);
 
         $produk = new Produk();
         $produk->nama = $request->nama;
         $produk->kode = $request->kode;
         $produk->harga = $request->harga;
+        $produk->gambar = $request->gambar;
+        $produk->deskripsi = $request->deskripsi;
         $produk->save();
 
         return response()->json([
@@ -95,11 +99,15 @@ class ProdukController extends Controller
             'nama' => 'required',
             'kode' => 'required',
             'harga' => 'required',
+            'gambar' => 'required',
+            'deskripsi' => 'required',
         ]);
 
         $produk->nama = $request->nama;
         $produk->kode = $request->kode;
         $produk->harga = $request->harga;
+        $produk->gambar = $request->gambar;
+        $produk->deskripsi = $request->deskripsi;
         $produk->save();
 
         return response()->json([

@@ -27,10 +27,19 @@
 				      <td>
 						<router-link class="btn btn-success btn-xs" :to="{ name: 'show', params: { id: item.id }}"><i class="fa fa-search-plus"></i></router-link>
 						<router-link class="btn btn-primary btn-xs" :to="{ name: 'edit', params: { id: item.id }}"><i class="fa fa-edit"></i></router-link>
-						<button class="btn btn-danger btn-xs"><i class="fa fa-trash-o "></i></button>
+						<a v-on:click="hapus(item.id)" class="btn btn-danger btn-xs"><i class="fa fa-trash-o "></i></a>
 				      </td>
 				  </tr>
 				  </tbody>
+				  <tfoot>
+				  	<tr>
+				  		<td colspan="2"></td>
+				  		<td>
+				  			<a v-on:click="prev" :disabled="table.prev_page_url === null" class="btn btn-info btn-xs"><i class="fa fa-arrow-left"></i></a>
+				  			<a v-on:click="next" :disabled="table.next_page_url === null" class="btn btn-info btn-xs"><i class="fa fa-arrow-right"></i></a>
+				  		</td>
+				  	</tr>
+				  </tfoot>
 				</table>
 			</div>
 
@@ -40,9 +49,7 @@
 	</div>
 </template>
 
-<script>
-import { mapActions, mapGetters} from 'vuex'
-	
+<script>	
 	export default{
 		name: "IndexPegawai",
 		data(){
@@ -50,53 +57,25 @@ import { mapActions, mapGetters} from 'vuex'
 				table: {}
 			}
 		},
-		computed:{
-			...mapGetters({
-				token: 'oauth'
-			})
-		},
 		methods:{
-			...mapActions({
-				'Oauth': 'setOauth',
-				getData(){
-					let that = this
-					that.$http.get('', {
-						headers: {
-							Authorization: that.token.token_type+' '+that.token.access_token
-						}
-					}).then(res => {
-						Vue.set(that.$data, 'table', res.data)
-					}).catch(error => {
-						console.log(error)
-					})
-				},
-				next(){
-					let that = this
-					that.$http.get(that.table.next_page_url, {
-						headers: {
-							Authorization: that.token.token_type+' '+that.token.access_token
-						}
-					}).then(res => {
-						Vue.set(that.$data, 'model', res.data.data)
-						Vue.set(that.$data, 'table', res.data)
-					}).catch(error => {
-						console.log(error)
-					})
-				},
-				prev(){
-					let that = this
-					that.$http.get(that.table.prev_page_url, {
-						headers: {
-							Authorization: that.token.token_type+' '+that.token.access_token
-						}
-					}).then(res => {
-						Vue.set(that.$data, 'model', res.data.data)
-						Vue.set(that.$data, 'table', res.data)
-					}).catch(error => {
-						console.log(error)
-					})
-				}
-			}),
+			getData(){
+				let that = this
+				that.$http.get('').then(res => {
+					Vue.set(that.$data, 'table', res.data)
+				})
+			},
+			next(){
+				let that = this
+				that.$http.get(that.table.next_page_url).then(res => {
+					Vue.set(that.$data, 'table', res.data)
+				})
+			},
+			prev(){
+				let that = this
+				that.$http.get(that.table.prev_page_url).then(res => {
+					Vue.set(that.$data, 'table', res.data)
+				})
+			},
 			hapus(id){
 				this.$swal({
 					title: "Are you sure?",
@@ -107,11 +86,8 @@ import { mapActions, mapGetters} from 'vuex'
 				.then((result) => {
 					if (result.value) {
 						var that = this
-						that.$http.delete('/'+id, {
-							headers: {
-								Authorization: that.token.token_type+' '+that.token.access_token
-							}
-						}).then(res => {
+						that.$http.delete('/'+id)
+						.then(res => {
 							this.$swal({
 								title: "Deleted!",
 								text: res.data.message,
@@ -120,20 +96,14 @@ import { mapActions, mapGetters} from 'vuex'
 							}).then(() => {
 								that.getData()
 							})
-						}).catch(err => {
-							console.log(err)
 						})
 					}
 				})
 			}
 			
 		},
-		created(){
-			this.Oauth()
-			this.getData()
-		},
 		beforeMount(){
-			
+			this.getData()
 		}
 	}
 </script>

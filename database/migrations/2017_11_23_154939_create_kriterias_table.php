@@ -13,7 +13,7 @@ class CreateKriteriasTable extends Migration
      */
     public function up()
     {
-        Schema::create('kriteria', function (Blueprint $table) {
+        Schema::create('kriteria_daerah_pemasaran', function (Blueprint $table) {
             $table->increments('id');
             $table->string('kriteria');
             $table->decimal('bobot', 3, 2);
@@ -29,6 +29,6 @@ class CreateKriteriasTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('kriteria');
+        Schema::dropIfExists('kriteria_daerah_pemasaran');
     }
 }

@@ -37,6 +37,15 @@ Route::get('/produk', 'ProdukController@index')
 Route::get('/pesanan', 'PesananController@index')
 	->name('pesanan')
 	->middleware('auth');
-Route::get('/kriteria', 'KriteriaController@index')
-	->name('kriteria')
+Route::get('/kriteria-daerah-pemasaran', 'KriteriaDaerahPemasaranController@index')
+	->name('kriteria-daerah-pemasaran')
+	->middleware('auth');
+Route::get('/calon-daerah-pemasaran', 'CalonDaerahPemasaranController@index')
+	->name('calon-daerah-pemasaran')
+	->middleware('auth');
+Route::get('/kriteria-distributor', 'KriteriaDistributorController@index')
+	->name('kriteria-distributor')
+	->middleware('auth');
+Route::get('/distributor', 'PelangganController@distributor')
+	->name('distributor')
 	->middleware('auth');

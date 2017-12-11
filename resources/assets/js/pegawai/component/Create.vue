@@ -32,7 +32,8 @@
 							<label for="status" class="control-label col-md-2">Status</label>
 							<div class="col-md-10">
 								<select class="form-control" id="status" v-model="data.status">
-									<option value=""></option>
+									<option value="marketing">Marketing</option>
+									<option value="admin">Admin</option>
 								</select>
 							</div>
 						</div>
@@ -45,8 +46,6 @@
 </template>
 
 <script>
-	import { mapActions, mapGetters} from 'vuex'
-
 	export default{
 		name: 'Create',
 		data(){
@@ -59,50 +58,20 @@
 				}
 			}
 		},
-		computed:{
-			...mapGetters({
-				token: 'oauth'
-			})
-		},
 		methods:{
-			...mapActions({
-				'Oauth': 'setOauth',
-				simpan(){
-					let that = this
-					
-					that.$http.post('', that.data,{
-						headers: {
-							Authorization: that.token.token_type+' '+that.token.access_token
-						}
-					}).then(res => {
-						this.$swal({
-							text: res.data.message,
-							type: "success",
-							timer: 5000
-						}).then(() => {
-							this.$router.push({name: 'index'})
-						})
-					}).catch(error => {
-						var contentHtml = '';
-						Object.keys(error.response.data.errors).forEach((key) => {
-							contentHtml +=  '<p class="text-danger">'+error.response.data.errors[key][0]+'</p>'
-						})
-						
-						this.$swal({
-						  title: error.response.data.message,
-						  html: contentHtml,
-						  type: 'error',
-						  timer: 5000,
-						})
+			simpan(){
+				let that = this
+				that.$http.post('', that.data,{
+				}).then(res => {
+					this.$swal({
+						text: res.data.message,
+						type: "success",
+						timer: 5000
+					}).then(() => {
+						this.$router.push({name: 'index'})
 					})
-				}
-			})
+				})
+			}
 		},
-		created(){
-			this.Oauth()
-		},
-		beforeMount(){
-
-		}
 	}
 </script>

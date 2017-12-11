@@ -14,9 +14,10 @@ class BuatTableDetailPesanan extends Migration
     public function up()
     {
         Schema::create('detail_pesanan', function (Blueprint $table) {
-            $table->increments('id');
-            $table->tinyInteger('jumlah');//QTY
-            $table->timestamps();
+            // $table->increments('id');
+            $table->unsignedInteger('jumlah');//QTY
+            $table->unsignedInteger('sub_total');
+            // $table->timestamps();
 
             $table->unsignedInteger('pesanan_id');
             $table->unsignedInteger('produk_id');

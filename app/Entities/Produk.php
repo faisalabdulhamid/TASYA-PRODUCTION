@@ -9,7 +9,7 @@ class Produk extends Model
     protected $table = 'produk';
 
     protected $hidden = [
-   		'created_at', 'updated_at'
+   		'created_at', 'updated_at', 'pivot'
    	];
 
    	protected $fillable = [

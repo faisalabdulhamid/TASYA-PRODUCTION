@@ -15,4 +15,9 @@ class Kota extends Model
    	protected $fillable = [
    		'kota', 'provinsi_id'
    	];
+
+   	public function provinsi()
+   	{
+   		return $this->belongsTo(Provinsi::class, 'provinsi_id');
+   	}
 }

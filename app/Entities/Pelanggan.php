@@ -10,4 +10,18 @@ class Pelanggan extends Model
 
     protected $hidden = [
    		'created_at', 'updated_at'
-   	];}
+   	];
+
+   	protected $appends= ['nama_kota'];
+
+   	public function kota()
+   	{
+   		return $this->belongsTo(Kota::class, 'kota_id');
+   	}
+
+   	public function getNamaKotaAttribute()
+   	{
+      // $kota = $this->kota->first();
+   		return 'Kota';
+   	}
+}

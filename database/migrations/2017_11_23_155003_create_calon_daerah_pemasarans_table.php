@@ -15,11 +15,11 @@ class CreateCalonDaerahPemasaransTable extends Migration
     {
         Schema::create('calon_daerah_pemasaran', function (Blueprint $table) {
             $table->increments('id');
-            $table->boolean('status');
+            $table->boolean('status')->default(true);
             $table->timestamps();
 
             $table->unsignedInteger('pegawai_id');
-            $table->unsignedInteger('kota_id');
+            $table->unsignedInteger('kota_id')->unique();
             $table->unsignedInteger('kriteria_id');
 
             $table->foreign('pegawai_id')

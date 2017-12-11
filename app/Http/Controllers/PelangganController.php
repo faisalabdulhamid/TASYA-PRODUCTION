@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Entities\Distributor;
 use App\Entities\Pelanggan;
 use Illuminate\Http\Request;
 
@@ -68,9 +69,10 @@ class PelangganController extends Controller
      * @param  \App\Entities\Pelanggan  $pelanggan
      * @return \Illuminate\Http\Response
      */
-    public function show(Pelanggan $pelanggan)
+    public function show($id)
     {
-        return response()->json($pelanggan);
+        $data = Pelanggan::find($id);
+        return response()->json($data);
     }
 
     /**
@@ -124,5 +126,25 @@ class PelangganController extends Controller
         return response()->json([
             'message' => 'Data Berhasil Dihapus'
         ], 201);
+    }
+
+    public function distributor(Request $request)
+    {
+        $distributor = new Distributor();
+
+        if ($request->wantsJson()) {
+            $data = $distributor->with('pelanggan')->whereHas('pelanggan.kota', function($q) use($request){
+                if (!is_null($request->kota)) {
+                    $q->where('id', $request->kota);
+                }
+            })->paginate(10);
+
+            return response()->json($data);
+        }
+
+        $title = 'Distributor';
+        $script = asset('js/distributor.js');
+
+        return view('index', compact('title', 'script'));
     }
 }

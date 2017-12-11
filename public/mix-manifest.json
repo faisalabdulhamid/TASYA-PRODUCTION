@@ -1,7 +1,11 @@
 {
     "/js/produk.js": "/js/produk.js",
-    "/js/pesanan.js": "/js/pesanan.js",
     "/js/pelanggan.js": "/js/pelanggan.js",
     "/js/pegawai.js": "/js/pegawai.js",
+    "/js/calon-daerah-pemasaran.js": "/js/calon-daerah-pemasaran.js",
+    "/js/pesanan.js": "/js/pesanan.js",
+    "/js/kriteria-distibutor.js": "/js/kriteria-distibutor.js",
+    "/js/kriteria-daerah-pemasaran.js": "/js/kriteria-daerah-pemasaran.js",
+    "/js/distributor.js": "/js/distributor.js",
     "/js/login.js": "/js/login.js"
 }

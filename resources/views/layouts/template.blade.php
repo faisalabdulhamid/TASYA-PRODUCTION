@@ -50,7 +50,7 @@
             	<ul class="nav pull-right top-menu">
                 <li><a class="logout" href="{{ route('logout') }}" onclick="event.preventDefault();
                   document.getElementById('logout-form').submit();
-                  localStorage.removeItem('oauth')">Logout</a></li>
+                  localStorage.removeItem('token')">Logout</a></li>
                 <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                     {{ csrf_field() }}
                 </form>
@@ -72,7 +72,7 @@
               	  <h5 class="centered">{{ Auth::user()->nama }}</h5>
               	  	
                   <li class="mt">
-                      <a class="active" href="{{ route('home') }}">
+                      <a href="{{ route('home') }}">
                           <i class="fa fa-dashboard"></i>
                           <span>Dashboard</span>
                       </a>
@@ -101,22 +101,54 @@
                           <span>Pesanan</span>
                       </a>
                   </li>
-                  <li>
-                      <a href="{{ route('kriteria') }}">
+
+                  <li class="sub-menu">
+                      <a href="javascript:;" >
                           <i class="fa fa-desktop"></i>
-                          <span>Kriteria</span>
+                          <span>Pemasaran</span>
                       </a>
+                      <ul class="sub">
+                          <li>
+                              <a href="{{ route('kriteria-daerah-pemasaran') }}">
+                                  <i class="fa fa-desktop"></i>
+                                  <span>Kriteria</span>
+                              </a>
+                          </li>
+                          <li>
+                            <a href="{{ route('calon-daerah-pemasaran') }}">
+                              <i class="fa fa-desktop"></i>
+                              <span>Calon Daerah </span>
+                            </a>
+                          </li>
+                          <li><a href="#">Perhitungan</a></li>
+                      </ul>
                   </li>
 
                   <li class="sub-menu">
                       <a href="javascript:;" >
                           <i class="fa fa-desktop"></i>
-                          <span>UI Elements</span>
+                          <span>Distributor</span>
                       </a>
                       <ul class="sub">
-                          <li><a  href="general.html">General</a></li>
-                          <li><a  href="buttons.html">Buttons</a></li>
-                          <li><a  href="panels.html">Panels</a></li>
+                          <li>
+                              <a href="{{ route('kriteria-distributor') }}">
+                                <i class="fa fa-desktop"></i>
+                                <span>Kriteria</span>
+                              </a>
+                          </li>
+                          <li>
+                            <a href="{{ route('distributor') }}">
+                              <i class="fa fa-desktop"></i>
+                              <span>Daftar Distributor</span> 
+                            </a>
+                          </li>
+                          <li>
+                            <a href="{{ route('calon-daerah-pemasaran') }}">
+                              <i class="fa fa-desktop"></i>
+                              <span>Calon Distributor</span> 
+                            </a>
+                          </li>
+                          <li><a href="#">Perhitungan</a></li>
                       </ul>
                   </li>
 

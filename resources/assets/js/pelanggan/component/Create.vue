@@ -31,13 +31,17 @@
 						<div class="form-group">
 							<label for="provinsi" class="control-label col-md-2">Provinsi</label>
 							<div class="col-md-10">
-								<select class="form-control" id="provinsi" v-model="data.provinsi"></select>
+								<select v-on:change="updateProvinsi" class="form-control" id="provinsi" v-model="data.provinsi">
+									<option v-for="item in provinsi" :value="item.id">{{ item.provinsi }}</option>
+								</select>
 							</div>
 						</div>
 						<div class="form-group">
 							<label for="kota" class="control-label col-md-2">Kota</label>
 							<div class="col-md-10">
-								<select class="form-control" id="kota" v-model="data.kota"></select>
+								<select class="form-control" id="kota" v-model="data.kota">
+									<option v-for="item in kota" :value="item.id">{{ item.kota }}</option>
+								</select>
 							</div>
 						</div>
 						<button class="btn btn-default">Simpan</button>
@@ -49,59 +53,48 @@
 </template>
 
 <script>
-	import { mapActions, mapGetters} from 'vuex'
-
+	import {base_url} from './../../config/env.config'
+	
 	export default{
 		name: 'Create',
 		data(){
 			return {
-				data: {}
+				data: {},
+				provinsi: [],
+				kota: []
 			}
 		},
-		computed:{
-			...mapGetters({
-				token: 'oauth'
-			})
-		},
 		methods:{
-			...mapActions({
-				'Oauth': 'setOauth',
-				simpan(){
-					let that = this
-					
-					that.$http.post('', that.data,{
-						headers: {
-							Authorization: that.token.token_type+' '+that.token.access_token
-						}
-					}).then(res => {
-						this.$swal({
-							text: res.data.message,
-							type: "success",
-							timer: 5000
-						}).then(() => {
-							this.$router.push({name: 'index'})
-						})
-					}).catch(error => {
-						var contentHtml = '';
-						Object.keys(error.response.data.errors).forEach((key) => {
-							contentHtml +=  '<p class="text-danger">'+error.response.data.errors[key][0]+'</p>'
-						})
-						
-						this.$swal({
-						  title: error.response.data.message,
-						  html: contentHtml,
-						  type: 'error',
-						  timer: 5000,
-						})
+			simpan(){
+				let that = this
+				that.$http.post('', that.data)
+				.then(res => {
+					this.$swal({
+						text: res.data.message,
+						type: "success",
+						timer: 5000
+					}).then(() => {
+						this.$router.push({name: 'index'})
 					})
-				}
-			})
-		},
-		created(){
-			this.Oauth()
+				})
+			},
+			getProvinsi(){
+				let that = this
+				that.$http.get(base_url+'api/select/provinsi')
+				.then(res => {
+					Vue.set(that.$data, 'provinsi', res.data)
+				})
+			},
+			updateProvinsi(){
+				let that = this
+				that.$http.get(base_url+'api/select/kota/'+that.data.provinsi)
+				.then(res => {
+					Vue.set(that.$data, 'kota', res.data)
+				})
+			}
 		},
 		beforeMount(){
-
+			this.getProvinsi()
 		}
 	}
 </script>

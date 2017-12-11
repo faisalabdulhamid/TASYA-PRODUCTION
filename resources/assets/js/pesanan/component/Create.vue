@@ -13,13 +13,9 @@
 						<div class="form-group">
 							<label for="pelanggan" class="control-label col-md-2">Pelanggan</label>
 							<div class="col-md-10">
-								<select class="form-control" id="pelanggan" v-model="data.pelanggan"></select>
-							</div>
-						</div>
-						<div class="form-group">
-							<label for="tanggal" class="control-label col-md-2">Tanggal</label>
-							<div class="col-md-10">
-								<input type="text" class="form-control" id="tanggal" v-model="data.tanggal">
+								<select class="form-control" id="pelanggan" v-model="data.pelanggan">
+									<option v-for="item in pelanggan" :value="item.id">{{ item.nama }}</option>
+								</select>
 							</div>
 						</div>
 						<div class="form-group">
@@ -37,28 +33,35 @@
 										<th>Qty</th>
 										<th>Harga</th>
 										<th>Sub Total</th>
+										<th>#</th>
 									</tr>
 								</thead>
 								<tbody>
-									<tr>
+									<tr v-for="(item, idx) in data.produks">
 										<td>
-											<select class="form-control"></select>
+											<select v-model="data.produks[idx].produk_id" class="form-control" v-on:change="updateProduk($event, idx)">
+												<option v-for="item in produk" :value="item.id">{{ item.nama }}</option>
+											</select>
 										</td>
 										<td>
-											<input type="text" class="form-control">
+											<input v-on:input="updateQty($event, idx)" v-model="item.jumlah" type="text" class="form-control">
 										</td>
 										<td>
-											Harga
+											{{ form[idx].harga }}
 										</td>
 										<td>
-											Subtotal
+											<input type="text" class="form-control" v-model="item.sub_total" readonly="">
+										</td>
+										<td>
+											<a v-on:click="removeItem(idx)" class="btn btn-danger btn-xs"><i class="fa fa-times"></i></a>
+											<a v-on:click="addItem" class="btn btn-info btn-xs"><i class="fa fa-plus"></i></a>
 										</td>
 									</tr>
 								</tbody>
 								<tfoot>
 									<tr>
 										<th colspan="3" class="text-right">Total </th>
-										<th>TotalBayar</th>
+										<th>{{ data.total_bayar }}</th>
 									</tr>
 								</tfoot>
 							</table>
@@ -72,59 +75,89 @@
 </template>
 
 <script>
-	import { mapActions, mapGetters} from 'vuex'
+	import {base_url} from './../../config/env.config'
 
 	export default{
 		name: 'Create',
 		data(){
 			return {
-				data: {}
+				data: {
+					produks: [
+						{produk_id: '', jumlah: 1}
+					]
+				},
+				pelanggan: [],
+				produk: [],
+				form: [{id: '', harga: 0}]
 			}
 		},
-		computed:{
-			...mapGetters({
-				token: 'oauth'
-			})
-		},
 		methods:{
-			...mapActions({
-				'Oauth': 'setOauth',
-				simpan(){
-					let that = this
-					
-					that.$http.post('', that.data,{
-						headers: {
-							Authorization: that.token.token_type+' '+that.token.access_token
-						}
-					}).then(res => {
-						this.$swal({
-							text: res.data.message,
-							type: "success",
-							timer: 5000
-						}).then(() => {
-							this.$router.push({name: 'index'})
-						})
-					}).catch(error => {
-						var contentHtml = '';
-						Object.keys(error.response.data.errors).forEach((key) => {
-							contentHtml +=  '<p class="text-danger">'+error.response.data.errors[key][0]+'</p>'
-						})
-						
-						this.$swal({
-						  title: error.response.data.message,
-						  html: contentHtml,
-						  type: 'error',
-						  timer: 5000,
-						})
-					})
+			getPelanggan(){
+				let that = this
+				that.$http.get(base_url+'api/select/pelanggan')
+				.then(res => {
+					Vue.set(that.$data, 'pelanggan', res.data)
+				})
+			},
+			getProduk(){
+				let that = this
+				that.$http.get(base_url+'api/select/produk')
+				.then(res => {
+					Vue.set(that.$data, 'produk', res.data)
+				})
+			},
+			addItem(){
+				this.data.produks.push({
+					'produk_id': '',
+					'jumlah': 1
+				})
+				this.form.push({id: '', harga: 0})
+			},
+			removeItem(idx){
+				if (this.data.produks.length > 1) {
+					this.data.produks.splice(idx, 1)
+					this.form.splice(idx, 1)
 				}
-			})
-		},
-		created(){
-			this.Oauth()
+			},
+			updateProduk(event, idx){
+				let _find = this.produk.find(o => o.id == event.target.value)
+				this.form[idx].id = _find.id
+				this.form[idx].harga = _find.harga
+				this.data.produks[idx].sub_total = _find.harga * this.data.produks[idx].jumlah
+				this._total()
+			},
+			updateQty(event, idx){
+				this.data.produks[idx].sub_total = event.target.value * this.form[idx].harga
+				this._total()
+			},
+			sub_total(){
+				this.form[idx].sub_total = this.data.produk[idx].jumlah * this.form[idx].harga
+				return this.data.produk[idx].jumlah * this.form[idx].harga
+			},
+			_total(){
+				let tot = 0
+				this.data.produks.forEach((val, key) => {
+					tot += val.sub_total
+				})
+				this.data.total_bayar = tot
+			},
+			simpan(){
+				let that = this
+				that.$http.post('', that.data)
+				.then(res => {
+					this.$swal({
+						text: res.data.message,
+						type: "success",
+						timer: 5000
+					}).then(() => {
+						this.$router.push({name: 'index'})
+					})
+				})
+			}
 		},
 		beforeMount(){
-
+			this.getPelanggan()
+			this.getProduk()
 		}
 	}
 </script>
