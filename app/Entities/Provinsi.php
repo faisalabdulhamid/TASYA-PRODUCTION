@@ -15,4 +15,14 @@ class Provinsi extends Model
    	protected $fillable = [
    		'provinsi'
    	];
+
+   	public function kota()
+   	{
+   		return $this->hasMany(Kota::class, 'provinsi_id');
+   	}
+
+   	public function calonPemasaran()
+    {
+        return $this->hasManyThrough(CalonDaerahPemasaran::class, Kota::class);
+    }
 }

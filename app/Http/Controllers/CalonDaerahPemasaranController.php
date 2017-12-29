@@ -3,11 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Entities\CalonDaerahPemasaran;
+use App\Http\Controllers\Perhitungan\Pemasaran;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class CalonDaerahPemasaranController extends Controller
 {
+    public function __construct()
+    {
+        // $this->middleware('auth');
+    }
     /**
      * Display a listing of the resource.
      *
@@ -65,7 +70,7 @@ class CalonDaerahPemasaranController extends Controller
             $calon = new CalonDaerahPemasaran();    
             $calon->kota_id = $request->kota;
             $calon->save();
-            foreach ($request->kriteria as $key => $value) {
+            foreach ($request->kriterias as $key => $value) {
                 $calon->kriterias()->attach($value['id'],['nilai' => $value['nilai']]);    
             }
         });
@@ -127,5 +132,30 @@ class CalonDaerahPemasaranController extends Controller
         return response()->json([
             'message' => 'Data Berhasil Diuncheck'
         ], 201);
+    }
+
+
+    public function hitung()
+    {
+        if (request()->wantsJson()) {
+            if (!request()->provinsi) {
+                return response()->json([
+                    'message' => 'Anda Belum Memilih Provinsi'
+                ], 402);
+            }
+
+            $hitung = new Pemasaran(request()->provinsi);
+            $result = $hitung->get();
+            if ($result == "error") {
+                return response()->json([
+                    'message' => 'Data Kosong'
+                ], 500);
+            }
+            return response()->json($result);
+
+        }
+        $title = 'Perhitungan Pemasaran';
+        $script = asset('js/hitung-pemasaran.js');
+        return view('index', compact('title', 'script'));
     }
 }

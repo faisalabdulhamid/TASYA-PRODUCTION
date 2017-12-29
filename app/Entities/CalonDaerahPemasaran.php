@@ -39,4 +39,9 @@ class CalonDaerahPemasaran extends Model
         $kota = $this->kota()->first(); 
         return $kota->provinsi()->first()->provinsi;
     }
+
+    public function scopeAktif($query)
+    {
+        return $query->where('status', 1);
+    }
 }

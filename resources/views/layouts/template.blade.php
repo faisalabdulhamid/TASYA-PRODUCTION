@@ -120,7 +120,7 @@
                               <span>Calon Daerah </span>
                             </a>
                           </li>
-                          <li><a href="#">Perhitungan</a></li>
+                          <li><a href="{{ route('perhitungan-pemasaran') }}">Perhitungan</a></li>
                       </ul>
                   </li>
 

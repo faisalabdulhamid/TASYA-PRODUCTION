@@ -20,4 +20,9 @@ class Kota extends Model
    	{
    		return $this->belongsTo(Provinsi::class, 'provinsi_id');
    	}
+
+    public function calonPemasaran()
+    {
+      return $this->hasMany(CalonDaerahPemasaran::class, 'kota_id');
+    }
 }
