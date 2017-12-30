@@ -143,12 +143,12 @@
                             </a>
                           </li>
                           <li>
-                            <a href="{{ route('calon-daerah-pemasaran') }}">
+                            <a href="{{ route('calon-distributor') }}">
                               <i class="fa fa-desktop"></i>
                               <span>Calon Distributor</span> 
                             </a>
                           </li>
-                          <li><a href="#">Perhitungan</a></li>
+                          <li><a href="{{ route('perhitungan-distributor') }}">Perhitungan</a></li>
                       </ul>
                   </li>
 

@@ -1,14 +1,14 @@
 <template>
 	<div>
 		<h5>
-			Calon Daerah Pemasaran <i class="fa fa-angle-right"></i>
-			List Data Calon Daerah Pemasaran
+			Calon Distributor <i class="fa fa-angle-right"></i>
+			List Data Calon Distributor
 		</h5>
 		<div class="row">
 		  <div class="col-lg-12">
 			<div class="content-panel">
 				<router-link class="btn btn-success pull-right" :to="{ name: 'create'}"><i class="fa fa-plus"></i></router-link>
-				<h4><i class="fa fa-users"></i> Data Calon Daerah Pemasaran</h4>
+				<h4><i class="fa fa-users"></i> Data Calon Distributor</h4>
 				<hr>
 				<div class="form-group col-md-12">
 					<select class="form-control" v-model="form_search" v-on:change="UpdateProvinsi">
@@ -19,14 +19,14 @@
 				<table class="table table-bordered">
 				  <thead>
 				  <tr>
-				      <th class="text_center">Kota</th>
+				      <th class="text_center">Pelanggan</th>
 				      <th v-for="item in kriteria" class="text_center kriteria">{{ item.kriteria }}</th>
 				      <th style="width: 150px">#</th>
 				  </tr>
 				  </thead>
 				  <tbody>
 				  <tr v-for="item in table.data" :class="{'active': !item.status}">
-				      <td>{{item.nama_kota}}</td>
+				      <td>{{item.nama_pelanggan}}</td>
 				      <td v-for="(k, i) in kriteria" class="text_center">{{item.kriterias[i].nilai}}</td>
 				      <td>
 						<div class="btn-group btn-group-xs" v-show="item.status">
@@ -68,7 +68,7 @@
 		methods:{
 			getKriteria(){
 				let that = this
-				that.$http.get(base_url+'/select/kriteria')
+				that.$http.get(base_url+'/select/kriteria-distributor')
 				.then(res => {
 					Vue.set(that.$data, 'kriteria', res.data)
 				})

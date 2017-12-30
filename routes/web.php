@@ -40,10 +40,17 @@ Route::resource('calon-daerah-pemasaran', 'CalonDaerahPemasaranController', [
 ]);
 Route::get('perhitungan-pemasaran', 'CalonDaerahPemasaranController@hitung')->name('perhitungan-pemasaran');
 Route::post('calon-daerah-pemasaran/{id}/check', 'CalonDaerahPemasaranController@check');
+
+Route::resource('calon-distributor', 'CalonDistributorController', [
+	'except' => ['edit', 'create'],
+	'names' => ['index' => 'calon-distributor']
+]);
+Route::get('perhitungan-distributor', 'CalonDistributorController@hitung')->name('perhitungan-distributor');
 Route::resource('kriteria-distributor', 'KriteriaDistributorController', [
 	'except' => ['edit', 'create'],
 	'names' => ['index' => 'kriteria-distributor']
 ]);
+
 
 Route::group(['middleware' => 'auth', 'prefix'=>'select', 'as'=>'select.'], function(){
 	Route::get('provinsi', function(){
@@ -66,4 +73,8 @@ Route::group(['middleware' => 'auth', 'prefix'=>'select', 'as'=>'select.'], func
 		$kriteria = App\Entities\KriteriaDaerahPemasaran::all();
 		return response()->json($kriteria);
 	})->name('kriteria');
+	Route::get('kriteria-distributor', function(){
+		$kriteria = App\Entities\KriteriaDistributor::all();
+		return response()->json($kriteria);
+	})->name('kriteria-distributor');
 });

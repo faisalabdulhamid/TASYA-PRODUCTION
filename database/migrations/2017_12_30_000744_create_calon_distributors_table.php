@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateCalonDaerahPemasaransTable extends Migration
+class CreateCalonDistributorsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,27 +13,22 @@ class CreateCalonDaerahPemasaransTable extends Migration
      */
     public function up()
     {
-        Schema::create('calon_daerah_pemasaran', function (Blueprint $table) {
+        Schema::create('calon_distributor', function (Blueprint $table) {
             $table->increments('id');
             $table->boolean('status')->default(true);
             $table->timestamps();
 
             $table->unsignedInteger('pegawai_id');
-            $table->unsignedInteger('kota_id')->unique();
-            // $table->unsignedInteger('kriteria_id');
+            $table->unsignedInteger('pelanggan_id')->unique();
 
             $table->foreign('pegawai_id')
                 ->references('id')
                 ->on('pegawai')
                 ->onDelete('cascade');
-            $table->foreign('kota_id')
+            $table->foreign('pelanggan_id')
                 ->references('id')
-                ->on('kota')
+                ->on('pelanggan')
                 ->onDelete('cascade');
-            // $table->foreign('kriteria_id')
-            //     ->references('id')
-            //     ->on('kriteria')
-            //     ->onDelete('cascade');
         });
     }
 
@@ -44,6 +39,6 @@ class CreateCalonDaerahPemasaransTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('calon_daerah_pemasaran');
+        Schema::dropIfExists('calon_distributor');
     }
 }

@@ -13,4 +13,7 @@ mix
 
 	.js('resources/assets/admin/kriteria-distibutor/kriteria-distibutor.js', 'public/js')
 	.js('resources/assets/admin/distributor/distributor.js', 'public/js')
+	.js('resources/assets/admin/calon-distributor/calon-distributor.js', 'public/js')
+	.js('resources/assets/admin/hitung-distributor/hitung-distributor.js', 'public/js')
+
 	.js('resources/assets/client/client.js', 'public/js')

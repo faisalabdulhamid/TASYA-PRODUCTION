@@ -11,7 +11,7 @@ class CalonDaerahPemasaranController extends Controller
 {
     public function __construct()
     {
-        // $this->middleware('auth');
+        $this->middleware('auth');
     }
     /**
      * Display a listing of the resource.
@@ -114,7 +114,25 @@ class CalonDaerahPemasaranController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $this->validate($request, [
+            // 'kota' => 'required|unique:calon_daerah_pemasaran,kota_id',
+            '*.*.nilai' => 'required|numeric'
+        ]);
+
+        DB::transaction(function()use($request, $id){
+            $calon = CalonDaerahPemasaran::find($id);
+            // $calon->kota_id = $request->kota;
+            // $calon->save();
+            // $calon->kriterias()->sync($request->kriterias);
+            foreach ($request->kriterias as $key => $value) {
+                $calon->kriterias()->sync([$value['id'] => ['nilai' => $value['nilai']]]);
+            }
+            
+        });
+
+        return response()->json([
+            'message' => 'Data Berhasil Ditambahkan'
+        ], 201);
     }
 
     /**

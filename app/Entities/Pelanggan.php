@@ -24,4 +24,9 @@ class Pelanggan extends Model
       // $kota = $this->kota->first();
    		return 'Kota';
    	}
+
+    // public function kota()
+    // {
+    //   return $this->belongsTo(Kota::class, 'kota_id');
+    // }
 }

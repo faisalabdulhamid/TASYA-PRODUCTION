@@ -25,4 +25,9 @@ class Provinsi extends Model
     {
         return $this->hasManyThrough(CalonDaerahPemasaran::class, Kota::class);
     }
+
+    public function calonDistributor()
+    {
+      return $this->hasManyThrough(CalonDistributor::class, Kota::class);
+    }
 }
