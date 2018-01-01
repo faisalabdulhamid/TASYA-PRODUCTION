@@ -15,7 +15,7 @@ swalPlugin.install = function(Vue){
 Vue.use(swalPlugin)
 
 var _http = axios.create({
-  	baseURL: base_url+'/perhitungan-pemasaran',
+  	baseURL: base_url+'/perhitungan-distributor',
     headers: {
       Authorization: 'Bearer '+localStorage.getItem('token')
     }

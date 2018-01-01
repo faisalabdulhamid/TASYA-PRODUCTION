@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Entities\CalonDistributor;
+use App\Http\Controllers\Perhitungan\Distributor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -129,6 +130,23 @@ class CalonDistributorController extends Controller
 
     public function hitung()
     {
+        if (request()->wantsJson()) {
+            if (request()->provinsi) {
+                $nilai_kriteria = [
+                    ['id'=> 1, 'nilai'=>3],
+                    ['id'=> 2, 'nilai'=>3],
+                    ['id'=> 3, 'nilai'=>4],
+                    ['id'=> 4, 'nilai'=>3],
+                    ['id'=> 5, 'nilai'=>2],
+                ];
+                $class = new Distributor(request()->provinsi, $nilai_kriteria);
+
+                // $data = $class->get();
+
+                return response()->json($class->get());
+            }
+            return;
+        }
         $title = 'Perhitungan Distributor';
         $script = asset('js/hitung-distributor.js');
 

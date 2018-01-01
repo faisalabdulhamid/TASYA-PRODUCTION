@@ -1,0 +1,15 @@
+<VirtualHost *:80>
+    ServerAdmin admin@tasya.laravel
+    DocumentRoot "D:/PROJECT/LARAVEL/TASYA-PRODUCTION/public"
+    ServerName tasya.laravel
+    ServerAlias www.tasya.laravel
+    ErrorLog logs/tasya.laravel.log
+    CustomLog logs/tasya.laravel.log combined
+    <Directory "D:/PROJECT/LARAVEL/TASYA-PRODUCTION">
+        Options Indexes FollowSymLinks MultiViews
+		AllowOverride all
+		Order Deny,Allow
+		Allow from all
+		Require all granted
+    </Directory>
+</VirtualHost>

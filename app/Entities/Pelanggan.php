@@ -25,8 +25,18 @@ class Pelanggan extends Model
    		return 'Kota';
    	}
 
-    // public function kota()
-    // {
-    //   return $this->belongsTo(Kota::class, 'kota_id');
-    // }
+    public function distributor()
+    {
+      return $this->hasMany(Distributor::class, 'pelanggan_id');
+    }
+
+    public function calon()
+    {
+      return $this->hasOne(CalonDistributor::class, 'pelanggan_id');
+    }
+
+    public function pesanan()
+    {
+      return $this->hasMany(Pesanan::class, 'pelanggan_id');
+    }
 }

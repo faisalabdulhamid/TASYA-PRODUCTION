@@ -22,18 +22,15 @@
 				  <thead>
 				  <tr>
 				      <th class="text_center">Kota</th>
-				      <th v-for="item in kriteria" class="text_center kriteria">{{ item.kriteria }}</th>
-				      <th>Hasil</th>
+				      <th>Nilai S</th>
+				      <th>Nilai V</th>
 				  </tr>
 				  </thead>
 				  <tbody>
 				  <tr v-for="item in table">
-				      <td>{{item.kota}}</td>
-				      <td>{{item.kat_0 }}</td>
-				      <td>{{item.kat_1 }}</td>
-				      <td>{{item.kat_2 }}</td>
-				      <td>{{item.kat_3 }}</td>
-				      <td>{{item.hasil}}</td>
+				      <td>{{item.pelanggan.nama}}</td>
+				      <td>{{item.nilai_s}}</td>
+				      <td>{{item.nilai_v}}</td>
 				  </tr>
 				  </tbody>
 				</table>
@@ -58,13 +55,6 @@
 			}
 		},
 		methods:{
-			getKriteria(){
-				let that = this
-				that.$http.get(base_url+'/select/kriteria-distributor')
-				.then(res => {
-					Vue.set(that.$data, 'kriteria', res.data)
-				})
-			},
 			getProvinsi(){
 				let that = this
 				that.$http.get(base_url+'/select/provinsi')
@@ -78,7 +68,7 @@
 				.then(res => {
 					let arr = res.data
 					let sor = arr.sort((a, b) => {
-						return b.hasil - a.hasil
+						return b.nilai_v - a.nilai_v
 					})
 					
 					Vue.set(that.$data, 'table', sor)
@@ -94,7 +84,6 @@
 		},
 		beforeMount(){
 			this.getData()
-			this.getKriteria()
 			this.getProvinsi()
 		}
 	}

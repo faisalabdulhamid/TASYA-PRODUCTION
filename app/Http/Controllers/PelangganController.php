@@ -75,7 +75,7 @@ class PelangganController extends Controller
      */
     public function show($id)
     {
-        $data = Pelanggan::find($id);
+        $data = Pelanggan::with('pesanan.produks')->get()->find($id);
         return response()->json($data);
     }
 

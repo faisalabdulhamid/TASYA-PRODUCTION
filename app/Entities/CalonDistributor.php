@@ -2,6 +2,7 @@
 
 namespace App\Entities;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class CalonDistributor extends Model
@@ -31,5 +32,12 @@ class CalonDistributor extends Model
     public function getNamaPelangganAttribute()
     {
         return $this->pelanggan()->first()->nama;
+    }
+
+    public static function boot()
+    {
+        static::addGlobalScope('notdistributor', function (Builder $builder) {
+            $builder->has('pelanggan.distributor', 0);
+        });
     }
 }

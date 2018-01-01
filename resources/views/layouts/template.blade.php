@@ -9,6 +9,7 @@
 
     <title>{{ (isset($title))? $title: config('app.name') }}</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="base-url" content="{{ config('app.url') }}">
 
     <!-- Bootstrap core CSS -->
     <link href="{{ asset('assets/css/bootstrap.css') }}" rel="stylesheet">
@@ -34,16 +35,12 @@
   <body>
 
   <section id="container" >
-      <!-- **********************************************************************************************************************************************************
-      TOP BAR CONTENT & NOTIFICATIONS
-      *********************************************************************************************************************************************************** -->
-      <!--header start-->
       <header class="header black-bg">
               <div class="sidebar-toggle-box">
                   <div class="fa fa-bars tooltips" data-placement="right" data-original-title="Toggle Navigation"></div>
               </div>
             <!--logo start-->
-            <a href="index.html" class="logo"><b>{{ config('app.name') }}</b></a>
+            <a href="/" class="logo"><b>{{ config('app.name') }}</b></a>
             <!--logo end-->
             
             <div class="top-menu">
@@ -57,18 +54,13 @@
             	</ul>
             </div>
         </header>
-      <!--header end-->
-      
-      <!-- **********************************************************************************************************************************************************
-      MAIN SIDEBAR MENU
-      *********************************************************************************************************************************************************** -->
-      <!--sidebar start-->
+
       <aside>
           <div id="sidebar"  class="nav-collapse ">
               <!-- sidebar menu start-->
               <ul class="sidebar-menu" id="nav-accordion">
               
-              	  <p class="centered"><a href="#"><img src="assets/img/ui-sam.jpg" class="img-circle" width="60"></a></p>
+              	  <p class="centered"><a href="#"><img src="{{ url('assets/img/ui-sam.jpg') }}" class="img-circle" width="60"></a></p>
               	  <h5 class="centered">{{ Auth::user()->nama }}</h5>
               	  	
                   <li class="mt">
@@ -156,20 +148,13 @@
               <!-- sidebar menu end-->
           </div>
       </aside>
-      <!--sidebar end-->
-      
-      <!-- **********************************************************************************************************************************************************
-      MAIN CONTENT
-      *********************************************************************************************************************************************************** -->
-      <!--main content start-->
+
       <section id="main-content" style="min-height: 617px">
           <section class="wrapper">
             @yield('content')
           </section>
       </section>
 
-      <!--main content end-->
-      <!--footer start-->
       <footer class="site-footer">
           <div class="text-center">
               2017 - {{ config('app.name') }}
@@ -178,7 +163,7 @@
               </a>
           </div>
       </footer>
-      <!--footer end-->
+
   </section>
 
     <!-- js placed at the end of the document so the pages load faster -->
@@ -199,42 +184,7 @@
 
     <!--script for this page-->
     <script src="{{ asset('assets/js/sparkline-chart.js') }}"></script>    
-	  <script src="{{ asset('assets/js/zabuto_calendar.js') }}"></script>	
-	
-	<script type="application/javascript">
-        $(document).ready(function () {
-            $("#date-popover").popover({html: true, trigger: "manual"});
-            $("#date-popover").hide();
-            $("#date-popover").click(function (e) {
-                $(this).hide();
-            });
-        
-            $("#my-calendar").zabuto_calendar({
-                action: function () {
-                    return myDateFunction(this.id, false);
-                },
-                action_nav: function () {
-                    return myNavFunction(this.id);
-                },
-                ajax: {
-                    url: "show_data.php?action=1",
-                    modal: true
-                },
-                legend: [
-                    {type: "text", label: "Special event", badge: "00"},
-                    {type: "block", label: "Regular event", }
-                ]
-            });
-        });
-        
-        
-        function myNavFunction(id) {
-            $("#date-popover").hide();
-            var nav = $("#" + id).data("navigation");
-            var to = $("#" + id).data("to");
-            console.log('nav ' + nav + ' to: ' + to.month + '/' + to.year);
-        }
-    </script>
+	  <script src="{{ asset('assets/js/zabuto_calendar.js') }}"></script>
   
     @stack('script')
   </body>

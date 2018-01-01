@@ -16,16 +16,16 @@
 				  <thead>
 				  <tr>
 				      <th>Kriteria</th>
-				      <th>Bobot</th>
-				      <th>Benefit</th>
+				      <!-- <th>Bobot</th>
+				      <th>Benefit</th> -->
 				      <th>#</th>
 				  </tr>
 				  </thead>
 				  <tbody>
 				  <tr v-for="item in table.data">
 				      <td>{{item.kriteria}}</td>
-				      <td>{{item.bobot}}</td>
-				      <td>{{item.benefit}}</td>
+				      <!-- <td>{{item.bobot}}</td>
+				      <td>{{item.benefit}}</td> -->
 				      <td>
 						<router-link class="btn btn-primary btn-xs" :to="{ name: 'edit', params: { id: item.id }}"><i class="fa fa-edit"></i></router-link>
 						<a v-on:click="hapus(item.id)" class="btn btn-danger btn-xs"><i class="fa fa-trash-o "></i></a>
@@ -34,7 +34,7 @@
 				  </tbody>
 				  <tfoot>
 				  	<tr>
-				  		<td colspan="3"></td>
+				  		<td colspan=""></td>
 				  		<td>
 				  			<a v-on:click="prev" :disabled="table.prev_page_url === null" class="btn btn-info btn-xs"><i class="fa fa-arrow-left"></i></a>
 				  			<a v-on:click="next" :disabled="table.next_page_url === null" class="btn btn-info btn-xs"><i class="fa fa-arrow-right"></i></a>

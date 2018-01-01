@@ -28,6 +28,20 @@
 	              			</tr>
 	              		</tbody>
 	              	</table>
+	              	<table class="table table-bordered">
+	              		<thead>
+	              			<tr>
+	              				<th>Tanggal</th>
+	              				<th>Totak Bayar</th>
+	              			</tr>
+	              		</thead>
+	              		<tbody>
+	              			<tr v-for="item in data.pesanan">
+	              				<td>{{ item.tanggal }}</td>
+	              				<td>{{item.total_bayar}}</td>
+	              			</tr>
+	              		</tbody>
+	              	</table>
             	</div>
 		  	</div>
 		</div>

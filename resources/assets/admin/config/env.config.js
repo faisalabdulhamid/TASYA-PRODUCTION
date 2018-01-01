@@ -1,2 +1,3 @@
-export const api_key = 'vdwCwEARK2pWJyXEwqCRNGi4ILW2t6ITW4HzLcqs'
-export const base_url = 'http://localhost:8000'
+let url = document.head.querySelector('meta[name="base-url"]').content
+export const api_key = 'TASYA-PRODUCTION'
+export const base_url = url

@@ -11,12 +11,13 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        $this->call(KriteriaSeeder::class);
-        factory(App\Entities\Pegawai::class, 10)->create();
-        // factory(App\Entities\Pelanggan::class, 100)->create();
-        $this->call(ProvinsiSeeder::class);
-        $this->call(KotaSeeder::class);
-        $this->call(ProdukSeeder::class);
-        $this->call(PelangganSeeder::class);
+        // $this->call(KriteriaSeeder::class);
+        // factory(App\Entities\Pegawai::class, 10)->create();
+        // // factory(App\Entities\Pelanggan::class, 100)->create();
+        // $this->call(ProvinsiSeeder::class);
+        // $this->call(KotaSeeder::class);
+        // $this->call(ProdukSeeder::class);
+        // $this->call(PelangganSeeder::class);
+        $this->call(KategoriSeeder::class);
     }
 }
