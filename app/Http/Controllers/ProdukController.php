@@ -19,7 +19,12 @@ class ProdukController extends Controller
     public function index()
     {
         if (request()->wantsJson()) {
-            $produk = Produk::paginate(10);
+            $produk = new  Produk;
+            if (request()->cari) {
+                $produk = $produk->where('kode', 'LIKE', '%'.request()->cari.'%')->orWhere('nama', 'LIKE', '%'.request()->cari.'%');
+            }
+            
+            $produk = $produk->paginate(10);
 
             return response()->json($produk);
         }

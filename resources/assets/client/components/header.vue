@@ -23,6 +23,12 @@
                             <router-link :to="{name:'kategori' , params: {param:item.url}}" replace>{{item.nama}}</router-link>
                         </li>
                     </ul>
+
+
+                </li>
+                <li>
+                    <!-- <a href="">About</a> -->
+                    <router-link :to="'about'">About</router-link>
                 </li>
                 <!-- settings end -->
             </ul>

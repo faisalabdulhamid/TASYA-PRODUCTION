@@ -7,11 +7,12 @@
 		<div class="row">
 		  <div class="col-lg-12">
 			<div class="content-panel">
-				<router-link class="btn btn-success pull-right" :to="{ name: 'create'}"><i class="fa fa-plus"></i></router-link>
+				<router-link class="btn btn-success pull-right" :to="{ name: 'create'}">Tambah Calon Daerah Pemasaran</router-link>
 				<h4><i class="fa fa-users"></i> Data Calon Daerah Pemasaran</h4>
 				<hr>
 				<div class="form-group col-md-12">
 					<select class="form-control" v-model="form_search" v-on:change="UpdateProvinsi">
+						<option value="">Pilih Provinsi</option>
 						<option v-for="item in provinsi" :value="item.id">{{item.provinsi}}</option>
 					</select>
 				</div>
@@ -21,7 +22,7 @@
 				  <tr>
 				      <th class="text_center">Kota</th>
 				      <th v-for="item in kriteria" class="text_center kriteria">{{ item.kriteria }}</th>
-				      <th style="width: 150px">#</th>
+				      <th width="150px">Aksi</th>
 				  </tr>
 				  </thead>
 				  <tbody>
@@ -30,10 +31,10 @@
 				      <td v-for="(k, i) in kriteria" class="text_center">{{item.kriterias[i].nilai}}</td>
 				      <td>
 						<div class="btn-group btn-group-xs" v-show="item.status">
-							<router-link class="btn btn-primary" :to="{ name: 'edit', params: { id: item.id }}"><i class="fa fa-edit"></i></router-link>
-							<a v-on:click="hapus(item.id)" class="btn btn-danger"><i class="fa fa-times"></i></a>
+							<router-link class="btn btn-primary" :to="{ name: 'edit', params: { id: item.id }}">ubah</router-link>
+							<a v-on:click="hapus(item.id)" class="btn btn-danger">hapus</a>
 						</div>
-						<a v-show="!item.status" v-on:click="check(item.id)" class="btn btn-success btn-xs"><i class="fa fa-check "></i></a>
+						<a v-show="!item.status" v-on:click="check(item.id)" class="btn btn-success btn-xs">tampilkan</a>
 				      </td>
 				  </tr>
 				  </tbody>

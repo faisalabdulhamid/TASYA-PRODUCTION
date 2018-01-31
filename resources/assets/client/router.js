@@ -12,5 +12,10 @@ export default new VueRouter({
         	name: 'product-detail', 
         	props: true
         },
+        {
+            path: '/about',
+            name:'About',
+            component: require('./components/about')
+        }
     ]
 });

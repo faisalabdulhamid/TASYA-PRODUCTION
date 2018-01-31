@@ -60,27 +60,10 @@
               <!-- sidebar menu start-->
               <ul class="sidebar-menu" id="nav-accordion">
               
-              	  <p class="centered"><a href="#"><img src="{{ url('assets/img/ui-sam.jpg') }}" class="img-circle" width="60"></a></p>
+              	  <p class="centered"><a href="#"><img src="{{ url('assets/img/logo.jpg') }}" class="img-circle" width="60"></a></p>
               	  <h5 class="centered">{{ Auth::user()->nama }}</h5>
-              	  	
-                  <li class="mt">
-                      <a href="{{ route('home') }}">
-                          <i class="fa fa-dashboard"></i>
-                          <span>Dashboard</span>
-                      </a>
-                  </li>
-                  <li>
-                      <a href="{{ route('pegawai') }}">
-                          <i class="fa fa-desktop"></i>
-                          <span>Pegawai</span>
-                      </a>
-                  </li>
-                  <li>
-                      <a href="{{ route('pelanggan') }}">
-                          <i class="fa fa-desktop"></i>
-                          <span>Pelanggan</span>
-                      </a>
-                  </li>
+                    
+                  @if(Auth()->user()->status == 'admin')
                   <li>
                       <a href="{{ route('produk') }}">
                           <i class="fa fa-desktop"></i>
@@ -90,10 +73,24 @@
                   <li>
                       <a href="{{ route('pesanan') }}">
                           <i class="fa fa-desktop"></i>
-                          <span>Pesanan</span>
+                          <span>Pemesanan</span>
                       </a>
                   </li>
-
+                  <li>
+                      <a href="{{ route('pelanggan') }}">
+                          <i class="fa fa-desktop"></i>
+                          <span>Pelanggan</span>
+                      </a>
+                  </li>
+                  @endif
+              	  	
+                  @if(Auth()->user()->status == 'marketing')
+                  <li>
+                      <a href="{{ route('pegawai') }}">
+                          <i class="fa fa-desktop"></i>
+                          <span>Pengguna</span>
+                      </a>
+                  </li>
                   <li class="sub-menu">
                       <a href="javascript:;" >
                           <i class="fa fa-desktop"></i>
@@ -112,10 +109,14 @@
                               <span>Calon Daerah </span>
                             </a>
                           </li>
-                          <li><a href="{{ route('perhitungan-pemasaran') }}">Perhitungan</a></li>
+                          <li>
+                            <a href="{{ route('perhitungan-pemasaran') }}">
+                               <i class="fa fa-desktop"></i>
+                              <span>Rekomendasi </span>
+                            </a>
+                          </li>
                       </ul>
                   </li>
-
                   <li class="sub-menu">
                       <a href="javascript:;" >
                           <i class="fa fa-desktop"></i>
@@ -140,9 +141,19 @@
                               <span>Calon Distributor</span> 
                             </a>
                           </li>
-                          <li><a href="{{ route('perhitungan-distributor') }}">Perhitungan</a></li>
+                          <li><a href="{{ route('perhitungan-distributor') }}">
+                            <i class="fa fa-desktop"></i>
+                            <span>Rekomendasi </span>
+                          </a></li>
                       </ul>
                   </li>
+                  <li>
+                      <a href="{{ route('pesanan') }}">
+                          <i class="fa fa-desktop"></i>
+                          <span>Pemesanan</span>
+                      </a>
+                  </li>
+                  @endif
 
               </ul>
               <!-- sidebar menu end-->

@@ -20,7 +20,11 @@ class PelangganController extends Controller
     public function index()
     {
         if (request()->wantsJson()) {
-            $pelanggan = Pelanggan::paginate(10); 
+            $pelanggan = new Pelanggan;
+            if (request()->cari) {
+                $pelanggan = $pelanggan->where('nama', 'LIKE', '%'.request()->cari.'%');
+            }
+            $pelanggan = $pelanggan->paginate(10); 
 
             return response()->json($pelanggan);
         }

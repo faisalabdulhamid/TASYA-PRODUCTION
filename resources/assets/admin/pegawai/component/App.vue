@@ -1,6 +1,6 @@
 <template>
 	<div id="root">
-		<h3><i class="fa fa-users"></i> Pegawai</h3>
+		<h3><i class="fa fa-users"></i> Pengguna</h3>
 		<hr>
 	    <template>      
 	        <router-view></router-view>

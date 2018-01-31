@@ -8,7 +8,7 @@
 		  <div class="col-lg-12">
 
 			<div class="content-panel">
-				<router-link class="btn btn-success pull-right" :to="{ name: 'create'}"><i class="fa fa-plus"></i></router-link>
+				<router-link class="btn btn-success pull-right" :to="{ name: 'create'}">Tambah Kriteria Daerah Pemasaran</router-link>
 				<h4><i class="fa fa-users"></i> Data Kriteria Daerah Pemasaran</h4>
 
 				<hr>
@@ -18,7 +18,7 @@
 				      <th>Kriteria</th>
 				      <th>Bobot</th>
 				      <th>Benefit</th>
-				      <th>#</th>
+				      <th width="150px">Aksi</th>
 				  </tr>
 				  </thead>
 				  <tbody>
@@ -27,8 +27,8 @@
 				      <td>{{item.bobot}}</td>
 				      <td>{{item.benefit}}</td>
 				      <td>
-						<router-link class="btn btn-primary btn-xs" :to="{ name: 'edit', params: { id: item.id }}"><i class="fa fa-edit"></i></router-link>
-						<a v-on:click="hapus(item.id)" class="btn btn-danger btn-xs"><i class="fa fa-trash-o "></i></a>
+						<router-link class="btn btn-primary btn-xs" :to="{ name: 'edit', params: { id: item.id }}">ubah</router-link>
+						<a v-on:click="hapus(item.id)" class="btn btn-danger btn-xs">hapus</a>
 				      </td>
 				  </tr>
 				  </tbody>

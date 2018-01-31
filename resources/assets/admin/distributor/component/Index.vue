@@ -14,7 +14,7 @@
 				  <tr>
 				      <th>Nama</th>
 				      <th>Telepon</th>
-				      <th>#</th>
+				      <th width="150px">Aksi</th>
 				  </tr>
 				  </thead>
 				  <tbody>
@@ -22,8 +22,8 @@
 				      <td>{{item.pelanggan.nama}}</td>
 				      <td>{{item.pelanggan.no_telepon}}</td>
 				      <td>
-						<router-link class="btn btn-success btn-xs" :to="{ name: 'show', params: { id: item.id }}"><i class="fa fa-search-plus"></i></router-link>
-						<a class="btn btn-danger btn-xs"><i class="fa fa-trash-o "></i></a>
+						<router-link class="btn btn-success btn-xs" :to="{ name: 'show', params: { id: item.id }}">lihat</router-link>
+						<a class="btn btn-danger btn-xs">hapus</a>
 				      </td>
 				  </tr>
 				  </tbody>

@@ -14,6 +14,7 @@
 				<hr>
 				<div class="form-group col-md-12">
 					<select class="form-control" v-model="form_search" v-on:change="UpdateProvinsi">
+						<option value="">Pilih provinsi</option>
 						<option v-for="item in provinsi" :value="item.id">{{item.provinsi}}</option>
 					</select>
 				</div>

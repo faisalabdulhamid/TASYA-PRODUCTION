@@ -8,16 +8,33 @@
 		  <div class="col-lg-12">
 
 			<div class="content-panel">
-				<router-link class="btn btn-success pull-right" :to="{ name: 'create'}"><i class="fa fa-plus"></i></router-link>
+				<router-link class="btn btn-success pull-right" :to="{ name: 'create'}">Tambah Produk</router-link>
 				<h4><i class="fa fa-users"></i> Data Produk</h4>
 
 				<hr>
 				<table class="table">
+					<thead>
+						<tr>
+							<th colspan="3">
+								<div class="form-group">
+									<label for="" class="control-label col-md-2">Cari</label>
+									<div class="col-md-10">
+										<div class="input-group">
+									      <input type="text" class="form-control" placeholder="Cari ..." v-model="cari">
+									      <span class="input-group-btn">
+									        <button class="btn btn-info" type="button" v-on:click="search">Cari</button>
+									      </span>
+									    </div><!-- /input-group -->
+									</div>
+								</div>
+							</th>
+						</tr>
+					</thead>
 				  <thead>
 				  <tr>
 				      <th>Kode</th>
 				      <th>Nama</th>
-				      <th>#</th>
+				      <th width="150px">Aksi</th>
 				  </tr>
 				  </thead>
 				  <tbody>
@@ -25,9 +42,9 @@
 				      <td>{{item.kode}}</td>
 				      <td>{{item.nama}}</td>
 				      <td>
-						<router-link class="btn btn-success btn-xs" :to="{ name: 'show', params: { id: item.id }}"><i class="fa fa-search-plus"></i></router-link>
-						<router-link class="btn btn-primary btn-xs" :to="{ name: 'edit', params: { id: item.id }}"><i class="fa fa-edit"></i></router-link>
-						<a v-on:click="hapus(item.id)" class="btn btn-danger btn-xs"><i class="fa fa-trash-o "></i></a>
+						<router-link class="btn btn-success btn-xs" :to="{ name: 'show', params: { id: item.id }}">lihat</router-link>
+						<router-link class="btn btn-primary btn-xs" :to="{ name: 'edit', params: { id: item.id }}">ubah</router-link>
+						<a v-on:click="hapus(item.id)" class="btn btn-danger btn-xs">hapus</a>
 				      </td>
 				  </tr>
 				  </tbody>
@@ -53,7 +70,8 @@
 		name: "IndexProduk",
 		data(){
 			return {
-				table: {}
+				table: {},
+				cari: ''
 			}
 		},
 		methods:{
@@ -101,8 +119,16 @@
 						})
 					}
 				})
+			},
+			search () {
+				this.$http.get('', {
+					params:{
+						cari: this.cari
+					}
+				}).then(res => {
+					Vue.set(this.$data, 'table', res.data)
+				})
 			}
-			
 		},
 		beforeMount(){
 			this.getData()

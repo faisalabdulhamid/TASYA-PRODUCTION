@@ -9,7 +9,10 @@ Route::get('/kategori', 'ClientController@getKategori')->name('kategori');
 
 Route::group(['prefix' => 'tasya'], function ()
 {
-	Route::get('/', 'HomeController@index')->name('home');
+	Route::get('/', function ()
+	{
+		return redirect()->route('pesanan');
+	})->name('home');
 
 	Route::resource('pegawai', 'PegawaiController', [
 		'except' => ['edit', 'create'],

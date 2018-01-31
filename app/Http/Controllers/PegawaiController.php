@@ -19,11 +19,15 @@ class PegawaiController extends Controller
     public function index()
     {
         if (request()->wantsJson()) {
-            $pegawai = Pegawai::paginate(10); 
+            $pegawai = new Pegawai; 
+            if (request()->cari) {
+                $pegawai = $pegawai->where('nama', 'LIKE', '%'.request()->cari.'%');
+            }
+            $pegawai = $pegawai->paginate(10); 
 
             return response()->json($pegawai);
         }
-        $title = 'Pegawai';
+        $title = 'Pengguna';
         $script = asset('js/pegawai.js');
 
         return view('index', compact('title', 'script'));
