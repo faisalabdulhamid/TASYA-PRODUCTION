@@ -33,7 +33,7 @@
 										<th>Qty</th>
 										<th>Harga</th>
 										<th>Sub Total</th>
-										<th>#</th>
+										<th width="150px">Aksi</th>
 									</tr>
 								</thead>
 								<tbody>
@@ -53,8 +53,8 @@
 											<input type="text" class="form-control" v-model="item.sub_total" readonly="">
 										</td>
 										<td>
-											<a v-on:click="removeItem(idx)" class="btn btn-danger btn-xs"><i class="fa fa-times"></i></a>
-											<a v-on:click="addItem" class="btn btn-info btn-xs"><i class="fa fa-plus"></i></a>
+											<a v-on:click="removeItem(idx)" class="btn btn-danger btn-xs">hapus</a>
+											<a v-on:click="addItem" class="btn btn-info btn-xs">tambah</a>
 										</td>
 									</tr>
 								</tbody>

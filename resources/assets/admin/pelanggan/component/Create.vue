@@ -80,14 +80,14 @@
 			},
 			getProvinsi(){
 				let that = this
-				that.$http.get(base_url+'api/select/provinsi')
+				that.$http.get(base_url+'/select/provinsi')
 				.then(res => {
 					Vue.set(that.$data, 'provinsi', res.data)
 				})
 			},
 			updateProvinsi(){
 				let that = this
-				that.$http.get(base_url+'api/select/kota/'+that.data.provinsi)
+				that.$http.get(base_url+'/select/kota/'+that.data.provinsi)
 				.then(res => {
 					Vue.set(that.$data, 'kota', res.data)
 				})

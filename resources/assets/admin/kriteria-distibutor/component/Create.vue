@@ -54,7 +54,7 @@
 		methods:{
 			simpan(){
 				let that = this
-				that.$http.post('').then(res => {
+				that.$http.post('', this.data).then(res => {
 					this.$swal({
 						text: res.data.message,
 						type: "success",
