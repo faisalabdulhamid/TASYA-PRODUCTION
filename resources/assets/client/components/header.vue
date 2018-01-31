@@ -28,7 +28,7 @@
                 </li>
                 <li>
                     <!-- <a href="">About</a> -->
-                    <router-link :to="'about'">About</router-link>
+                    <router-link :to="'/about'">About</router-link>
                 </li>
                 <!-- settings end -->
             </ul>

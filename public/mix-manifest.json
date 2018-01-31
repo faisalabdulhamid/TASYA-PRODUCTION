@@ -7,8 +7,8 @@
     "/js/pesanan.js": "/js/pesanan.js",
     "/js/kriteria-distibutor.js": "/js/kriteria-distibutor.js",
     "/js/kriteria-daerah-pemasaran.js": "/js/kriteria-daerah-pemasaran.js",
-    "/js/distributor.js": "/js/distributor.js",
     "/js/client.js": "/js/client.js",
+    "/js/distributor.js": "/js/distributor.js",
     "/js/hitung-pemasaran.js": "/js/hitung-pemasaran.js",
     "/js/hitung-distributor.js": "/js/hitung-distributor.js",
     "/js/login.js": "/js/login.js"
