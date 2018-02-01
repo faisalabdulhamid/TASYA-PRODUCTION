@@ -49,7 +49,7 @@ class KriteriaDistributorController extends Controller
     {
         $this->validate($request, [
             'kriteria' => 'required',
-            'bobot' => 'required',
+            'bobot' => 'required|numeric|between:0.1,1',
             'benefit' => 'required',
         ]);
 
@@ -98,7 +98,7 @@ class KriteriaDistributorController extends Controller
     {
         $this->validate($request, [
             'kriteria' => 'required',
-            'bobot' => 'required',
+            'bobot' => 'required|numeric|between:0.1,1',
         ]);
 
         $kriteria = Kriteria::find($kriterium);

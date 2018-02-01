@@ -49,7 +49,7 @@ class KriteriaDaerahPemasaranController extends Controller
     {
         $this->validate($request, [
             'kriteria' => 'required',
-            'bobot' => 'required',
+            'bobot' => 'required|numeric|between:0.1,1',
         ]);
 
         $kriterium = new Kriteria();
@@ -96,7 +96,7 @@ class KriteriaDaerahPemasaranController extends Controller
     {
         $this->validate($request, [
             'kriteria' => 'required',
-            'bobot' => 'required',
+            'bobot' => 'required|numeric|between:0.1,1',
         ]);
         $kriteria = Kriteria::find($kriterium);
         $kriteria->kriteria = $request->kriteria;

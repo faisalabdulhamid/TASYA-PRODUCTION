@@ -22,6 +22,11 @@
 	              				<td>{{ data.nama }}</td>
 	              			</tr>
 	              			<tr>
+	              				<th>Kategori</th>
+	              				<td>:</td>
+	              				<td>{{ data.kategori_id }}</td>
+	              			</tr>
+	              			<tr>
 	              				<th>Harga</th>
 	              				<td>:</td>
 	              				<td>{{ data.harga }}</td>
@@ -29,7 +34,7 @@
 	              			<tr>
 	              				<th>Gambar</th>
 	              				<td>:</td>
-	              				<td>{{ data.gambar }}</td>
+	              				<td><img width="70px" :src="data.gambar" :alt="data.gambar"></td>
 	              			</tr>
 	              			<tr>
 	              				<th>Deskripsi</th>

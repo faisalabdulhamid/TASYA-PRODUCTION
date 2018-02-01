@@ -32,7 +32,7 @@
 				      <td>
 						<div class="btn-group btn-group-xs" v-show="item.status">
 							<router-link class="btn btn-primary" :to="{ name: 'edit', params: { id: item.id }}">ubah</router-link>
-							<a v-on:click="hapus(item.id)" class="btn btn-danger">hapus</a>
+							<a v-on:click="hapus(item.id)" class="btn btn-danger"><i class="fa fa-times"></i></a>
 						</div>
 						<a v-show="!item.status" v-on:click="check(item.id)" class="btn btn-success btn-xs">tampilkan</a>
 				      </td>

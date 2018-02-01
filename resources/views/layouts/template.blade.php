@@ -91,6 +91,12 @@
                           <span>Pengguna</span>
                       </a>
                   </li>
+                  <li>
+                      <a href="{{ route('pelanggan') }}">
+                          <i class="fa fa-desktop"></i>
+                          <span>Pelanggan</span>
+                      </a>
+                  </li>
                   <li class="sub-menu">
                       <a href="javascript:;" >
                           <i class="fa fa-desktop"></i>
