@@ -56,21 +56,28 @@ class ProdukController extends Controller
             'nama' => 'required',
             'kode' => 'required|unique:produk',
             'harga' => 'required|numeric',
-            'gambar' => 'required',
+            'gambar' => 'required|file|max:2000',
             'deskripsi' => 'required',
         ]);
 
-        $produk = new Produk();
-        $produk->nama = $request->nama;
-        $produk->kode = $request->kode;
-        $produk->harga = $request->harga;
-        $produk->gambar = $request->gambar;
-        $produk->deskripsi = $request->deskripsi;
-        $produk->save();
+        $uploadedFile = $request->file('gambar');
 
-        return response()->json([
-            'message' => 'Data Berhasil Ditambahkan'
-        ], 201);
+        if ($uploadedFile->isValid()) {
+            $path = $uploadedFile->store('');
+
+            $produk = new Produk();
+            $produk->nama = $request->nama;
+            $produk->kode = $request->kode;
+            $produk->harga = $request->harga;
+            $produk->gambar = url('/images/produk/'.$path);
+            $produk->deskripsi = $request->deskripsi;
+            $produk->save();
+
+            return response()->json([
+                'message' => 'Data Berhasil Ditambahkan'
+            ], 201);
+        }
+        
     }
 
     /**

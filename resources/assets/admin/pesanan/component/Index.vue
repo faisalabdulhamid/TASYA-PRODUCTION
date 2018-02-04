@@ -73,14 +73,14 @@
 </template>
 
 <script>
-	import moment from 'moment'
+	// import moment from 'moment'
 	// import 'eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.css'
-	import datePicker from 'vue-bootstrap-datetimepicker'
+	// import datePicker from 'vue-bootstrap-datetimepicker'
 
 	export default{
 		name: "IndexPesanan",
 		components: {
-			datePicker
+			// datePicker
 		},
 		data(){
 			return {

@@ -31,7 +31,12 @@
 						<div class="form-group">
 							<label for="gambar" class="control-label col-md-2">Gambar</label>
 							<div class="col-md-10">
-								<input type="file" id="gambar" v-on:change="onFileChange">
+								<input 
+									type="file" 
+									multiple
+									name="gambar" 
+									id="gambar" 
+									accept="image/*" >
 							</div>
 						</div>
 						<div class="form-group">
@@ -54,7 +59,12 @@
 		props: ['id'],
 		data(){
 			return {
-				data: {}
+				data: {
+					'kode': '',
+					'nama': '',
+					'harga': '',
+					'deskripsi': '',
+				}
 			}
 		},
 		methods:{
@@ -65,19 +75,34 @@
 					Vue.set(that.$data, 'data', res.data)
 				})
 			},
-			onFileChange(){
-				
-			},
 			simpan(){
-				let that = this
-				that.$http.put('/'+that.id, that.data)
+				const formData = new FormData()
+				formData.append('kode', this.data.kode)
+				formData.append('nama', this.data.nama)
+				formData.append('harga', this.data.harga)
+				formData.append('deskripsi', this.data.deskripsi)
+
+				let fileList = $('input[type="file"]')[0].files
+				console.log(fileList)
+				if (!fileList.length){
+					formData.append('gambar', '')
+				}else{
+					Array
+						.from(Array(fileList.length).keys())
+						.map(x => {
+							formData.append('gambar', fileList[x], fileList[x].name);
+						})
+					
+				}
+
+				this.$http.put('/'+this.id, this.data)
 				.then(res => {
-					that.$swal({
+					this.$swal({
 						title: res.data.message,
 						type: "success",
 						timer: 5000,
 					}).then(() => {
-						that.$router.push({name: 'index'})
+						this.$router.push({name: 'index'})
 					})
 				})
 			},

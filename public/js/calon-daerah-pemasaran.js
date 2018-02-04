@@ -60,19 +60,18 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 262);
+/******/ 	return __webpack_require__(__webpack_require__.s = 138);
 /******/ })
 /************************************************************************/
-/******/ ({
-
-/***/ 0:
+/******/ ([
+/* 0 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var bind = __webpack_require__(5);
-var isBuffer = __webpack_require__(18);
+var bind = __webpack_require__(4);
+var isBuffer = __webpack_require__(17);
 
 /*global toString:true*/
 
@@ -375,8 +374,675 @@ module.exports = {
 
 
 /***/ }),
+/* 1 */
+/***/ (function(module, exports) {
 
-/***/ 10:
+/* globals __VUE_SSR_CONTEXT__ */
+
+// IMPORTANT: Do NOT use ES2015 features in this file.
+// This module is a runtime utility for cleaner component module output and will
+// be included in the final webpack user bundle.
+
+module.exports = function normalizeComponent (
+  rawScriptExports,
+  compiledTemplate,
+  functionalTemplate,
+  injectStyles,
+  scopeId,
+  moduleIdentifier /* server only */
+) {
+  var esModule
+  var scriptExports = rawScriptExports = rawScriptExports || {}
+
+  // ES6 modules interop
+  var type = typeof rawScriptExports.default
+  if (type === 'object' || type === 'function') {
+    esModule = rawScriptExports
+    scriptExports = rawScriptExports.default
+  }
+
+  // Vue.extend constructor export interop
+  var options = typeof scriptExports === 'function'
+    ? scriptExports.options
+    : scriptExports
+
+  // render functions
+  if (compiledTemplate) {
+    options.render = compiledTemplate.render
+    options.staticRenderFns = compiledTemplate.staticRenderFns
+    options._compiled = true
+  }
+
+  // functional template
+  if (functionalTemplate) {
+    options.functional = true
+  }
+
+  // scopedId
+  if (scopeId) {
+    options._scopeId = scopeId
+  }
+
+  var hook
+  if (moduleIdentifier) { // server build
+    hook = function (context) {
+      // 2.3 injection
+      context =
+        context || // cached call
+        (this.$vnode && this.$vnode.ssrContext) || // stateful
+        (this.parent && this.parent.$vnode && this.parent.$vnode.ssrContext) // functional
+      // 2.2 with runInNewContext: true
+      if (!context && typeof __VUE_SSR_CONTEXT__ !== 'undefined') {
+        context = __VUE_SSR_CONTEXT__
+      }
+      // inject component styles
+      if (injectStyles) {
+        injectStyles.call(this, context)
+      }
+      // register component module identifier for async chunk inferrence
+      if (context && context._registeredComponents) {
+        context._registeredComponents.add(moduleIdentifier)
+      }
+    }
+    // used by ssr in case component is cached and beforeCreate
+    // never gets called
+    options._ssrRegister = hook
+  } else if (injectStyles) {
+    hook = injectStyles
+  }
+
+  if (hook) {
+    var functional = options.functional
+    var existing = functional
+      ? options.render
+      : options.beforeCreate
+
+    if (!functional) {
+      // inject component registration as beforeCreate hook
+      options.beforeCreate = existing
+        ? [].concat(existing, hook)
+        : [hook]
+    } else {
+      // for template-only hot-reload because in that case the render fn doesn't
+      // go through the normalizer
+      options._injectStyles = hook
+      // register for functioal component in vue file
+      options.render = function renderWithStyleInjection (h, context) {
+        hook.call(context)
+        return existing(h, context)
+      }
+    }
+  }
+
+  return {
+    esModule: esModule,
+    exports: scriptExports,
+    options: options
+  }
+}
+
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports) {
+
+var g;
+
+// This works in non-strict mode
+g = (function() {
+	return this;
+})();
+
+try {
+	// This works if eval is allowed (see CSP)
+	g = g || Function("return this")() || (1,eval)("this");
+} catch(e) {
+	// This works if the window reference is available
+	if(typeof window === "object")
+		g = window;
+}
+
+// g can still be undefined, but nothing to do about it...
+// We return undefined, instead of nothing here, so it's
+// easier to handle this case. if(!global) { ...}
+
+module.exports = g;
+
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(process) {
+
+var utils = __webpack_require__(0);
+var normalizeHeaderName = __webpack_require__(19);
+
+var DEFAULT_CONTENT_TYPE = {
+  'Content-Type': 'application/x-www-form-urlencoded'
+};
+
+function setContentTypeIfUnset(headers, value) {
+  if (!utils.isUndefined(headers) && utils.isUndefined(headers['Content-Type'])) {
+    headers['Content-Type'] = value;
+  }
+}
+
+function getDefaultAdapter() {
+  var adapter;
+  if (typeof XMLHttpRequest !== 'undefined') {
+    // For browsers use XHR adapter
+    adapter = __webpack_require__(6);
+  } else if (typeof process !== 'undefined') {
+    // For node use HTTP adapter
+    adapter = __webpack_require__(6);
+  }
+  return adapter;
+}
+
+var defaults = {
+  adapter: getDefaultAdapter(),
+
+  transformRequest: [function transformRequest(data, headers) {
+    normalizeHeaderName(headers, 'Content-Type');
+    if (utils.isFormData(data) ||
+      utils.isArrayBuffer(data) ||
+      utils.isBuffer(data) ||
+      utils.isStream(data) ||
+      utils.isFile(data) ||
+      utils.isBlob(data)
+    ) {
+      return data;
+    }
+    if (utils.isArrayBufferView(data)) {
+      return data.buffer;
+    }
+    if (utils.isURLSearchParams(data)) {
+      setContentTypeIfUnset(headers, 'application/x-www-form-urlencoded;charset=utf-8');
+      return data.toString();
+    }
+    if (utils.isObject(data)) {
+      setContentTypeIfUnset(headers, 'application/json;charset=utf-8');
+      return JSON.stringify(data);
+    }
+    return data;
+  }],
+
+  transformResponse: [function transformResponse(data) {
+    /*eslint no-param-reassign:0*/
+    if (typeof data === 'string') {
+      try {
+        data = JSON.parse(data);
+      } catch (e) { /* Ignore */ }
+    }
+    return data;
+  }],
+
+  timeout: 0,
+
+  xsrfCookieName: 'XSRF-TOKEN',
+  xsrfHeaderName: 'X-XSRF-TOKEN',
+
+  maxContentLength: -1,
+
+  validateStatus: function validateStatus(status) {
+    return status >= 200 && status < 300;
+  }
+};
+
+defaults.headers = {
+  common: {
+    'Accept': 'application/json, text/plain, */*'
+  }
+};
+
+utils.forEach(['delete', 'get', 'head'], function forEachMethodNoData(method) {
+  defaults.headers[method] = {};
+});
+
+utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
+  defaults.headers[method] = utils.merge(DEFAULT_CONTENT_TYPE);
+});
+
+module.exports = defaults;
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)))
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+module.exports = function bind(fn, thisArg) {
+  return function wrap() {
+    var args = new Array(arguments.length);
+    for (var i = 0; i < args.length; i++) {
+      args[i] = arguments[i];
+    }
+    return fn.apply(thisArg, args);
+  };
+};
+
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports) {
+
+// shim for using process in browser
+var process = module.exports = {};
+
+// cached from whatever global is present so that test runners that stub it
+// don't break things.  But we need to wrap it in a try catch in case it is
+// wrapped in strict mode code which doesn't define any globals.  It's inside a
+// function because try/catches deoptimize in certain engines.
+
+var cachedSetTimeout;
+var cachedClearTimeout;
+
+function defaultSetTimout() {
+    throw new Error('setTimeout has not been defined');
+}
+function defaultClearTimeout () {
+    throw new Error('clearTimeout has not been defined');
+}
+(function () {
+    try {
+        if (typeof setTimeout === 'function') {
+            cachedSetTimeout = setTimeout;
+        } else {
+            cachedSetTimeout = defaultSetTimout;
+        }
+    } catch (e) {
+        cachedSetTimeout = defaultSetTimout;
+    }
+    try {
+        if (typeof clearTimeout === 'function') {
+            cachedClearTimeout = clearTimeout;
+        } else {
+            cachedClearTimeout = defaultClearTimeout;
+        }
+    } catch (e) {
+        cachedClearTimeout = defaultClearTimeout;
+    }
+} ())
+function runTimeout(fun) {
+    if (cachedSetTimeout === setTimeout) {
+        //normal enviroments in sane situations
+        return setTimeout(fun, 0);
+    }
+    // if setTimeout wasn't available but was latter defined
+    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+        cachedSetTimeout = setTimeout;
+        return setTimeout(fun, 0);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedSetTimeout(fun, 0);
+    } catch(e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+            return cachedSetTimeout.call(null, fun, 0);
+        } catch(e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+            return cachedSetTimeout.call(this, fun, 0);
+        }
+    }
+
+
+}
+function runClearTimeout(marker) {
+    if (cachedClearTimeout === clearTimeout) {
+        //normal enviroments in sane situations
+        return clearTimeout(marker);
+    }
+    // if clearTimeout wasn't available but was latter defined
+    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+        cachedClearTimeout = clearTimeout;
+        return clearTimeout(marker);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedClearTimeout(marker);
+    } catch (e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+            return cachedClearTimeout.call(null, marker);
+        } catch (e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+            return cachedClearTimeout.call(this, marker);
+        }
+    }
+
+
+
+}
+var queue = [];
+var draining = false;
+var currentQueue;
+var queueIndex = -1;
+
+function cleanUpNextTick() {
+    if (!draining || !currentQueue) {
+        return;
+    }
+    draining = false;
+    if (currentQueue.length) {
+        queue = currentQueue.concat(queue);
+    } else {
+        queueIndex = -1;
+    }
+    if (queue.length) {
+        drainQueue();
+    }
+}
+
+function drainQueue() {
+    if (draining) {
+        return;
+    }
+    var timeout = runTimeout(cleanUpNextTick);
+    draining = true;
+
+    var len = queue.length;
+    while(len) {
+        currentQueue = queue;
+        queue = [];
+        while (++queueIndex < len) {
+            if (currentQueue) {
+                currentQueue[queueIndex].run();
+            }
+        }
+        queueIndex = -1;
+        len = queue.length;
+    }
+    currentQueue = null;
+    draining = false;
+    runClearTimeout(timeout);
+}
+
+process.nextTick = function (fun) {
+    var args = new Array(arguments.length - 1);
+    if (arguments.length > 1) {
+        for (var i = 1; i < arguments.length; i++) {
+            args[i - 1] = arguments[i];
+        }
+    }
+    queue.push(new Item(fun, args));
+    if (queue.length === 1 && !draining) {
+        runTimeout(drainQueue);
+    }
+};
+
+// v8 likes predictible objects
+function Item(fun, array) {
+    this.fun = fun;
+    this.array = array;
+}
+Item.prototype.run = function () {
+    this.fun.apply(null, this.array);
+};
+process.title = 'browser';
+process.browser = true;
+process.env = {};
+process.argv = [];
+process.version = ''; // empty string to avoid regexp issues
+process.versions = {};
+
+function noop() {}
+
+process.on = noop;
+process.addListener = noop;
+process.once = noop;
+process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
+process.emit = noop;
+process.prependListener = noop;
+process.prependOnceListener = noop;
+
+process.listeners = function (name) { return [] }
+
+process.binding = function (name) {
+    throw new Error('process.binding is not supported');
+};
+
+process.cwd = function () { return '/' };
+process.chdir = function (dir) {
+    throw new Error('process.chdir is not supported');
+};
+process.umask = function() { return 0; };
+
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var utils = __webpack_require__(0);
+var settle = __webpack_require__(20);
+var buildURL = __webpack_require__(22);
+var parseHeaders = __webpack_require__(23);
+var isURLSameOrigin = __webpack_require__(24);
+var createError = __webpack_require__(7);
+var btoa = (typeof window !== 'undefined' && window.btoa && window.btoa.bind(window)) || __webpack_require__(25);
+
+module.exports = function xhrAdapter(config) {
+  return new Promise(function dispatchXhrRequest(resolve, reject) {
+    var requestData = config.data;
+    var requestHeaders = config.headers;
+
+    if (utils.isFormData(requestData)) {
+      delete requestHeaders['Content-Type']; // Let the browser set it
+    }
+
+    var request = new XMLHttpRequest();
+    var loadEvent = 'onreadystatechange';
+    var xDomain = false;
+
+    // For IE 8/9 CORS support
+    // Only supports POST and GET calls and doesn't returns the response headers.
+    // DON'T do this for testing b/c XMLHttpRequest is mocked, not XDomainRequest.
+    if ("development" !== 'test' &&
+        typeof window !== 'undefined' &&
+        window.XDomainRequest && !('withCredentials' in request) &&
+        !isURLSameOrigin(config.url)) {
+      request = new window.XDomainRequest();
+      loadEvent = 'onload';
+      xDomain = true;
+      request.onprogress = function handleProgress() {};
+      request.ontimeout = function handleTimeout() {};
+    }
+
+    // HTTP basic authentication
+    if (config.auth) {
+      var username = config.auth.username || '';
+      var password = config.auth.password || '';
+      requestHeaders.Authorization = 'Basic ' + btoa(username + ':' + password);
+    }
+
+    request.open(config.method.toUpperCase(), buildURL(config.url, config.params, config.paramsSerializer), true);
+
+    // Set the request timeout in MS
+    request.timeout = config.timeout;
+
+    // Listen for ready state
+    request[loadEvent] = function handleLoad() {
+      if (!request || (request.readyState !== 4 && !xDomain)) {
+        return;
+      }
+
+      // The request errored out and we didn't get a response, this will be
+      // handled by onerror instead
+      // With one exception: request that using file: protocol, most browsers
+      // will return status as 0 even though it's a successful request
+      if (request.status === 0 && !(request.responseURL && request.responseURL.indexOf('file:') === 0)) {
+        return;
+      }
+
+      // Prepare the response
+      var responseHeaders = 'getAllResponseHeaders' in request ? parseHeaders(request.getAllResponseHeaders()) : null;
+      var responseData = !config.responseType || config.responseType === 'text' ? request.responseText : request.response;
+      var response = {
+        data: responseData,
+        // IE sends 1223 instead of 204 (https://github.com/axios/axios/issues/201)
+        status: request.status === 1223 ? 204 : request.status,
+        statusText: request.status === 1223 ? 'No Content' : request.statusText,
+        headers: responseHeaders,
+        config: config,
+        request: request
+      };
+
+      settle(resolve, reject, response);
+
+      // Clean up request
+      request = null;
+    };
+
+    // Handle low level network errors
+    request.onerror = function handleError() {
+      // Real errors are hidden from us by the browser
+      // onerror should only fire if it's a network error
+      reject(createError('Network Error', config, null, request));
+
+      // Clean up request
+      request = null;
+    };
+
+    // Handle timeout
+    request.ontimeout = function handleTimeout() {
+      reject(createError('timeout of ' + config.timeout + 'ms exceeded', config, 'ECONNABORTED',
+        request));
+
+      // Clean up request
+      request = null;
+    };
+
+    // Add xsrf header
+    // This is only done if running in a standard browser environment.
+    // Specifically not if we're in a web worker, or react-native.
+    if (utils.isStandardBrowserEnv()) {
+      var cookies = __webpack_require__(26);
+
+      // Add xsrf header
+      var xsrfValue = (config.withCredentials || isURLSameOrigin(config.url)) && config.xsrfCookieName ?
+          cookies.read(config.xsrfCookieName) :
+          undefined;
+
+      if (xsrfValue) {
+        requestHeaders[config.xsrfHeaderName] = xsrfValue;
+      }
+    }
+
+    // Add headers to the request
+    if ('setRequestHeader' in request) {
+      utils.forEach(requestHeaders, function setRequestHeader(val, key) {
+        if (typeof requestData === 'undefined' && key.toLowerCase() === 'content-type') {
+          // Remove Content-Type if data is undefined
+          delete requestHeaders[key];
+        } else {
+          // Otherwise add header to the request
+          request.setRequestHeader(key, val);
+        }
+      });
+    }
+
+    // Add withCredentials to request if needed
+    if (config.withCredentials) {
+      request.withCredentials = true;
+    }
+
+    // Add responseType to request if needed
+    if (config.responseType) {
+      try {
+        request.responseType = config.responseType;
+      } catch (e) {
+        // Expected DOMException thrown by browsers not compatible XMLHttpRequest Level 2.
+        // But, this can be suppressed for 'json' type as it can be parsed by default 'transformResponse' function.
+        if (config.responseType !== 'json') {
+          throw e;
+        }
+      }
+    }
+
+    // Handle progress if needed
+    if (typeof config.onDownloadProgress === 'function') {
+      request.addEventListener('progress', config.onDownloadProgress);
+    }
+
+    // Not all browsers support upload events
+    if (typeof config.onUploadProgress === 'function' && request.upload) {
+      request.upload.addEventListener('progress', config.onUploadProgress);
+    }
+
+    if (config.cancelToken) {
+      // Handle cancellation
+      config.cancelToken.promise.then(function onCanceled(cancel) {
+        if (!request) {
+          return;
+        }
+
+        request.abort();
+        reject(cancel);
+        // Clean up request
+        request = null;
+      });
+    }
+
+    if (requestData === undefined) {
+      requestData = null;
+    }
+
+    // Send the request
+    request.send(requestData);
+  });
+};
+
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var enhanceError = __webpack_require__(21);
+
+/**
+ * Create an Error with the specified message, config, error code, request and response.
+ *
+ * @param {string} message The error message.
+ * @param {Object} config The config.
+ * @param {string} [code] The error code (for example, 'ECONNABORTED').
+ * @param {Object} [request] The request.
+ * @param {Object} [response] The response.
+ * @returns {Error} The created error.
+ */
+module.exports = function createError(message, config, code, request, response) {
+  var error = new Error(message);
+  return enhanceError(error, config, code, request, response);
+};
+
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+module.exports = function isCancel(value) {
+  return !!(value && value.__CANCEL__);
+};
+
+
+/***/ }),
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -402,8 +1068,7 @@ module.exports = Cancel;
 
 
 /***/ }),
-
-/***/ 11:
+/* 10 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -414,8 +1079,7 @@ var api_key = 'TASYA-PRODUCTION';
 var base_url = url;
 
 /***/ }),
-
-/***/ 12:
+/* 11 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -3045,41 +3709,11 @@ if (inBrowser && window.Vue) {
 
 
 /***/ }),
-
-/***/ 13:
-/***/ (function(module, exports) {
-
-module.exports = function(module) {
-	if(!module.webpackPolyfill) {
-		module.deprecate = function() {};
-		module.paths = [];
-		// module.parent = undefined by default
-		if(!module.children) module.children = [];
-		Object.defineProperty(module, "loaded", {
-			enumerable: true,
-			get: function() {
-				return module.l;
-			}
-		});
-		Object.defineProperty(module, "id", {
-			enumerable: true,
-			get: function() {
-				return module.i;
-			}
-		});
-		module.webpackPolyfill = 1;
-	}
-	return module;
-};
-
-
-/***/ }),
-
-/***/ 14:
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 
-window._ = __webpack_require__(15);
+window._ = __webpack_require__(13);
 
 /**
  * We'll load jQuery and the Bootstrap jQuery plugin which provides support
@@ -3099,7 +3733,7 @@ try {
  * CSRF token as a header based on the value of the "XSRF" token cookie.
  */
 
-window.axios = __webpack_require__(16);
+window.axios = __webpack_require__(15);
 
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
@@ -3133,8 +3767,7 @@ if (token) {
 // });
 
 /***/ }),
-
-/***/ 15:
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global, module) {var __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -20223,27 +20856,53 @@ if (token) {
   }
 }.call(this));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3), __webpack_require__(13)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2), __webpack_require__(14)(module)))
 
 /***/ }),
+/* 14 */
+/***/ (function(module, exports) {
 
-/***/ 16:
+module.exports = function(module) {
+	if(!module.webpackPolyfill) {
+		module.deprecate = function() {};
+		module.paths = [];
+		// module.parent = undefined by default
+		if(!module.children) module.children = [];
+		Object.defineProperty(module, "loaded", {
+			enumerable: true,
+			get: function() {
+				return module.l;
+			}
+		});
+		Object.defineProperty(module, "id", {
+			enumerable: true,
+			get: function() {
+				return module.i;
+			}
+		});
+		module.webpackPolyfill = 1;
+	}
+	return module;
+};
+
+
+/***/ }),
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(17);
+module.exports = __webpack_require__(16);
 
 /***/ }),
-
-/***/ 17:
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 var utils = __webpack_require__(0);
-var bind = __webpack_require__(5);
-var Axios = __webpack_require__(19);
-var defaults = __webpack_require__(4);
+var bind = __webpack_require__(4);
+var Axios = __webpack_require__(18);
+var defaults = __webpack_require__(3);
 
 /**
  * Create an instance of Axios
@@ -20276,15 +20935,15 @@ axios.create = function create(instanceConfig) {
 };
 
 // Expose Cancel & CancelToken
-axios.Cancel = __webpack_require__(10);
-axios.CancelToken = __webpack_require__(33);
-axios.isCancel = __webpack_require__(9);
+axios.Cancel = __webpack_require__(9);
+axios.CancelToken = __webpack_require__(32);
+axios.isCancel = __webpack_require__(8);
 
 // Expose all/spread
 axios.all = function all(promises) {
   return Promise.all(promises);
 };
-axios.spread = __webpack_require__(34);
+axios.spread = __webpack_require__(33);
 
 module.exports = axios;
 
@@ -20293,8 +20952,7 @@ module.exports.default = axios;
 
 
 /***/ }),
-
-/***/ 18:
+/* 17 */
 /***/ (function(module, exports) {
 
 /*!
@@ -20321,17 +20979,16 @@ function isSlowBuffer (obj) {
 
 
 /***/ }),
-
-/***/ 19:
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var defaults = __webpack_require__(4);
+var defaults = __webpack_require__(3);
 var utils = __webpack_require__(0);
-var InterceptorManager = __webpack_require__(28);
-var dispatchRequest = __webpack_require__(29);
+var InterceptorManager = __webpack_require__(27);
+var dispatchRequest = __webpack_require__(28);
 
 /**
  * Create a new instance of Axios
@@ -20408,118 +21065,7 @@ module.exports = Axios;
 
 
 /***/ }),
-
-/***/ 2:
-/***/ (function(module, exports) {
-
-/* globals __VUE_SSR_CONTEXT__ */
-
-// IMPORTANT: Do NOT use ES2015 features in this file.
-// This module is a runtime utility for cleaner component module output and will
-// be included in the final webpack user bundle.
-
-module.exports = function normalizeComponent (
-  rawScriptExports,
-  compiledTemplate,
-  functionalTemplate,
-  injectStyles,
-  scopeId,
-  moduleIdentifier /* server only */
-) {
-  var esModule
-  var scriptExports = rawScriptExports = rawScriptExports || {}
-
-  // ES6 modules interop
-  var type = typeof rawScriptExports.default
-  if (type === 'object' || type === 'function') {
-    esModule = rawScriptExports
-    scriptExports = rawScriptExports.default
-  }
-
-  // Vue.extend constructor export interop
-  var options = typeof scriptExports === 'function'
-    ? scriptExports.options
-    : scriptExports
-
-  // render functions
-  if (compiledTemplate) {
-    options.render = compiledTemplate.render
-    options.staticRenderFns = compiledTemplate.staticRenderFns
-    options._compiled = true
-  }
-
-  // functional template
-  if (functionalTemplate) {
-    options.functional = true
-  }
-
-  // scopedId
-  if (scopeId) {
-    options._scopeId = scopeId
-  }
-
-  var hook
-  if (moduleIdentifier) { // server build
-    hook = function (context) {
-      // 2.3 injection
-      context =
-        context || // cached call
-        (this.$vnode && this.$vnode.ssrContext) || // stateful
-        (this.parent && this.parent.$vnode && this.parent.$vnode.ssrContext) // functional
-      // 2.2 with runInNewContext: true
-      if (!context && typeof __VUE_SSR_CONTEXT__ !== 'undefined') {
-        context = __VUE_SSR_CONTEXT__
-      }
-      // inject component styles
-      if (injectStyles) {
-        injectStyles.call(this, context)
-      }
-      // register component module identifier for async chunk inferrence
-      if (context && context._registeredComponents) {
-        context._registeredComponents.add(moduleIdentifier)
-      }
-    }
-    // used by ssr in case component is cached and beforeCreate
-    // never gets called
-    options._ssrRegister = hook
-  } else if (injectStyles) {
-    hook = injectStyles
-  }
-
-  if (hook) {
-    var functional = options.functional
-    var existing = functional
-      ? options.render
-      : options.beforeCreate
-
-    if (!functional) {
-      // inject component registration as beforeCreate hook
-      options.beforeCreate = existing
-        ? [].concat(existing, hook)
-        : [hook]
-    } else {
-      // for template-only hot-reload because in that case the render fn doesn't
-      // go through the normalizer
-      options._injectStyles = hook
-      // register for functioal component in vue file
-      options.render = function renderWithStyleInjection (h, context) {
-        hook.call(context)
-        return existing(h, context)
-      }
-    }
-  }
-
-  return {
-    esModule: esModule,
-    exports: scriptExports,
-    options: options
-  }
-}
-
-
-/***/ }),
-
-/***/ 20:
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -20538,14 +21084,13 @@ module.exports = function normalizeHeaderName(headers, normalizedName) {
 
 
 /***/ }),
-
-/***/ 21:
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var createError = __webpack_require__(8);
+var createError = __webpack_require__(7);
 
 /**
  * Resolve or reject a Promise based on response status.
@@ -20572,8 +21117,7 @@ module.exports = function settle(resolve, reject, response) {
 
 
 /***/ }),
-
-/***/ 22:
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -20601,8 +21145,7 @@ module.exports = function enhanceError(error, config, code, request, response) {
 
 
 /***/ }),
-
-/***/ 23:
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -20677,8 +21220,7 @@ module.exports = function buildURL(url, params, paramsSerializer) {
 
 
 /***/ }),
-
-/***/ 24:
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -20738,8 +21280,7 @@ module.exports = function parseHeaders(headers) {
 
 
 /***/ }),
-
-/***/ 25:
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -20814,8 +21355,7 @@ module.exports = (
 
 
 /***/ }),
-
-/***/ 26:
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -20858,284 +21398,7 @@ module.exports = btoa;
 
 
 /***/ }),
-
-/***/ 262:
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__(263);
-
-
-/***/ }),
-
-/***/ 263:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__config_env_config__ = __webpack_require__(11);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__component_App_vue__ = __webpack_require__(264);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__component_App_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__component_App_vue__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_vue_router__ = __webpack_require__(12);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__router_js__ = __webpack_require__(267);
-__webpack_require__(14);
-
-
-
-window.Vue = __webpack_require__(35);
-
-
-
-
-Vue.use(__WEBPACK_IMPORTED_MODULE_2_vue_router__["a" /* default */]);
-
-
-//Plugin sweetalert2
-var swal = __webpack_require__(41);
-var swalPlugin = {};
-swalPlugin.install = function (Vue) {
-    Vue.prototype.$swal = swal;
-};
-Vue.use(swalPlugin);
-
-var _http = axios.create({
-    baseURL: __WEBPACK_IMPORTED_MODULE_0__config_env_config__["b" /* base_url */] + '/calon-daerah-pemasaran',
-    headers: {
-        Authorization: 'Bearer ' + localStorage.getItem('token')
-    }
-});
-_http.interceptors.response.use(function (response) {
-    return response;
-}, function (error) {
-    // Do something with response error
-    if (error.response.status === 401 || error.response.status === 500) {
-        swal(error.response.statusText, error.response.data.message, "error");
-    }
-    if (error.response.status === 422) {
-        var contentHtml = '';
-        Object.keys(error.response.data.errors).forEach(function (key) {
-            contentHtml += '<p class="text-danger">' + error.response.data.errors[key][0] + '</p>';
-        });
-
-        swal({
-            title: error.response.data.message,
-            html: contentHtml,
-            type: 'error',
-            timer: 5000
-        });
-    }
-    return Promise.reject(error.response);
-});
-Vue.prototype.$http = _http;
-Vue.config.productionTip = false;
-
-var app = new Vue({
-    el: '#root',
-    template: '<app></app>',
-    components: { App: __WEBPACK_IMPORTED_MODULE_1__component_App_vue___default.a },
-    router: __WEBPACK_IMPORTED_MODULE_3__router_js__["a" /* default */]
-});
-
-/***/ }),
-
-/***/ 264:
-/***/ (function(module, exports, __webpack_require__) {
-
-var disposed = false
-var normalizeComponent = __webpack_require__(2)
-/* script */
-var __vue_script__ = __webpack_require__(265)
-/* template */
-var __vue_template__ = __webpack_require__(266)
-/* template functional */
-var __vue_template_functional__ = false
-/* styles */
-var __vue_styles__ = null
-/* scopeId */
-var __vue_scopeId__ = null
-/* moduleIdentifier (server only) */
-var __vue_module_identifier__ = null
-var Component = normalizeComponent(
-  __vue_script__,
-  __vue_template__,
-  __vue_template_functional__,
-  __vue_styles__,
-  __vue_scopeId__,
-  __vue_module_identifier__
-)
-Component.options.__file = "resources\\assets\\admin\\calon-daerah-pemasaran\\component\\App.vue"
-
-/* hot reload */
-if (false) {(function () {
-  var hotAPI = require("vue-hot-reload-api")
-  hotAPI.install(require("vue"), false)
-  if (!hotAPI.compatible) return
-  module.hot.accept()
-  if (!module.hot.data) {
-    hotAPI.createRecord("data-v-4bbae963", Component.options)
-  } else {
-    hotAPI.reload("data-v-4bbae963", Component.options)
-  }
-  module.hot.dispose(function (data) {
-    disposed = true
-  })
-})()}
-
-module.exports = Component.exports
-
-
-/***/ }),
-
-/***/ 265:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-
-/* harmony default export */ __webpack_exports__["default"] = ({
-	name: "App"
-});
-
-/***/ }),
-
-/***/ 266:
-/***/ (function(module, exports, __webpack_require__) {
-
-var render = function() {
-  var _vm = this
-  var _h = _vm.$createElement
-  var _c = _vm._self._c || _h
-  return _c(
-    "div",
-    { attrs: { id: "root" } },
-    [_vm._m(0), _vm._v(" "), _c("hr"), _vm._v(" "), [_c("router-view")]],
-    2
-  )
-}
-var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("h3", [
-      _c("i", { staticClass: "fa fa-users" }),
-      _vm._v(" Calon Daerah Pemasaran")
-    ])
-  }
-]
-render._withStripped = true
-module.exports = { render: render, staticRenderFns: staticRenderFns }
-if (false) {
-  module.hot.accept()
-  if (module.hot.data) {
-    require("vue-hot-reload-api")      .rerender("data-v-4bbae963", module.exports)
-  }
-}
-
-/***/ }),
-
-/***/ 267:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue_router__ = __webpack_require__(12);
-
-
-/* harmony default export */ __webpack_exports__["a"] = (new __WEBPACK_IMPORTED_MODULE_0_vue_router__["a" /* default */]({
-    routes: [{ path: '/', component: __webpack_require__(268), name: 'index' }, { path: '/:id/lihat', component: __webpack_require__(273), name: 'show', props: true }, { path: '/create', component: __webpack_require__(276), name: 'create' }, { path: '/:id/edit', component: __webpack_require__(279), name: 'edit', props: true }]
-}));
-
-/***/ }),
-
-/***/ 268:
-/***/ (function(module, exports, __webpack_require__) {
-
-var disposed = false
-function injectStyle (ssrContext) {
-  if (disposed) return
-  __webpack_require__(269)
-}
-var normalizeComponent = __webpack_require__(2)
-/* script */
-var __vue_script__ = __webpack_require__(271)
-/* template */
-var __vue_template__ = __webpack_require__(272)
-/* template functional */
-var __vue_template_functional__ = false
-/* styles */
-var __vue_styles__ = injectStyle
-/* scopeId */
-var __vue_scopeId__ = "data-v-03d995d8"
-/* moduleIdentifier (server only) */
-var __vue_module_identifier__ = null
-var Component = normalizeComponent(
-  __vue_script__,
-  __vue_template__,
-  __vue_template_functional__,
-  __vue_styles__,
-  __vue_scopeId__,
-  __vue_module_identifier__
-)
-Component.options.__file = "resources\\assets\\admin\\calon-daerah-pemasaran\\component\\Index.vue"
-
-/* hot reload */
-if (false) {(function () {
-  var hotAPI = require("vue-hot-reload-api")
-  hotAPI.install(require("vue"), false)
-  if (!hotAPI.compatible) return
-  module.hot.accept()
-  if (!module.hot.data) {
-    hotAPI.createRecord("data-v-03d995d8", Component.options)
-  } else {
-    hotAPI.reload("data-v-03d995d8", Component.options)
-  }
-  module.hot.dispose(function (data) {
-    disposed = true
-  })
-})()}
-
-module.exports = Component.exports
-
-
-/***/ }),
-
-/***/ 269:
-/***/ (function(module, exports, __webpack_require__) {
-
-// style-loader: Adds some css to the DOM by adding a <style> tag
-
-// load the styles
-var content = __webpack_require__(270);
-if(typeof content === 'string') content = [[module.i, content, '']];
-if(content.locals) module.exports = content.locals;
-// add the styles to the DOM
-var update = __webpack_require__(39)("5db857ac", content, false);
-// Hot Module Replacement
-if(false) {
- // When the styles change, update the <style> tags
- if(!content.locals) {
-   module.hot.accept("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-03d995d8\",\"scoped\":true,\"hasInlineConfig\":true}!../../../../../node_modules/sass-loader/lib/loader.js!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./Index.vue", function() {
-     var newContent = require("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-03d995d8\",\"scoped\":true,\"hasInlineConfig\":true}!../../../../../node_modules/sass-loader/lib/loader.js!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./Index.vue");
-     if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-     update(newContent);
-   });
- }
- // When the module is disposed, remove the <style> tags
- module.hot.dispose(function() { update(); });
-}
-
-/***/ }),
-
-/***/ 27:
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -21195,1086 +21458,7 @@ module.exports = (
 
 
 /***/ }),
-
-/***/ 270:
-/***/ (function(module, exports, __webpack_require__) {
-
-exports = module.exports = __webpack_require__(38)(false);
-// imports
-
-
-// module
-exports.push([module.i, "\n.pull-right[data-v-03d995d8] {\n  margin-right: 20px;\n}\n.text_center[data-v-03d995d8] {\n  vertical-align: middle;\n  text-align: center;\n}\n.kriteria[data-v-03d995d8] {\n  width: 150px;\n}\n", ""]);
-
-// exports
-
-
-/***/ }),
-
-/***/ 271:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__config_env_config__ = __webpack_require__(11);
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-
-
-/* harmony default export */ __webpack_exports__["default"] = ({
-	name: "Index",
-	data: function data() {
-		return {
-			table: {
-				data: []
-			},
-			kriteria: [],
-			form_search: '',
-			provinsi: []
-		};
-	},
-
-	methods: {
-		getKriteria: function getKriteria() {
-			var that = this;
-			that.$http.get(__WEBPACK_IMPORTED_MODULE_0__config_env_config__["b" /* base_url */] + '/select/kriteria').then(function (res) {
-				Vue.set(that.$data, 'kriteria', res.data);
-			});
-		},
-		getProvinsi: function getProvinsi() {
-			var that = this;
-			that.$http.get(__WEBPACK_IMPORTED_MODULE_0__config_env_config__["b" /* base_url */] + '/select/provinsi').then(function (res) {
-				Vue.set(that.$data, 'provinsi', res.data);
-			});
-		},
-		UpdateProvinsi: function UpdateProvinsi() {
-			var that = this;
-			that.$http.get('?provinsi=' + that.form_search).then(function (res) {
-				Vue.set(that.$data, 'table', res.data);
-			});
-		},
-		getData: function getData() {
-			var that = this;
-			that.$http.get('').then(function (res) {
-				Vue.set(that.$data, 'table', res.data);
-			});
-		},
-		next: function next() {
-			var that = this;
-			that.$http.get(that.table.next_page_url).then(function (res) {
-				Vue.set(that.$data, 'table', res.data);
-			});
-		},
-		prev: function prev() {
-			var that = this;
-			that.$http.get(that.table.prev_page_url).then(function (res) {
-				Vue.set(that.$data, 'table', res.data);
-			});
-		},
-		hapus: function hapus(id) {
-			var _this = this;
-
-			this.$swal({
-				title: "Apakah Anda Yakin?",
-				text: "",
-				type: "warning",
-				showCancelButton: true
-			}).then(function (result) {
-				if (result.value) {
-					var that = _this;
-					that.$http.delete('/' + id).then(function (res) {
-						_this.$swal({
-							title: "Deleted!",
-							text: res.data.message,
-							type: "success",
-							timer: 5000
-						}).then(function () {
-							that.getData();
-						});
-					});
-				}
-			});
-		},
-		check: function check(id) {
-			var _this2 = this;
-
-			var that = this;
-			that.$http.post('/' + id + '/check', '').then(function (res) {
-				_this2.$swal({
-					title: "check ",
-					text: res.data.message,
-					type: "success",
-					timer: 5000
-				}).then(function () {
-					that.getData();
-				});
-			});
-		}
-	},
-	beforeMount: function beforeMount() {
-		this.getData();
-		this.getKriteria();
-		this.getProvinsi();
-	}
-});
-
-/***/ }),
-
-/***/ 272:
-/***/ (function(module, exports, __webpack_require__) {
-
-var render = function() {
-  var _vm = this
-  var _h = _vm.$createElement
-  var _c = _vm._self._c || _h
-  return _c("div", [
-    _vm._m(0),
-    _vm._v(" "),
-    _c("div", { staticClass: "row" }, [
-      _c("div", { staticClass: "col-lg-12" }, [
-        _c(
-          "div",
-          { staticClass: "content-panel" },
-          [
-            _c(
-              "router-link",
-              {
-                staticClass: "btn btn-success pull-right",
-                attrs: { to: { name: "create" } }
-              },
-              [_vm._v("Tambah Calon Daerah Pemasaran")]
-            ),
-            _vm._v(" "),
-            _vm._m(1),
-            _vm._v(" "),
-            _c("hr"),
-            _vm._v(" "),
-            _c("div", { staticClass: "form-group col-md-12" }, [
-              _c(
-                "select",
-                {
-                  directives: [
-                    {
-                      name: "model",
-                      rawName: "v-model",
-                      value: _vm.form_search,
-                      expression: "form_search"
-                    }
-                  ],
-                  staticClass: "form-control",
-                  on: {
-                    change: [
-                      function($event) {
-                        var $$selectedVal = Array.prototype.filter
-                          .call($event.target.options, function(o) {
-                            return o.selected
-                          })
-                          .map(function(o) {
-                            var val = "_value" in o ? o._value : o.value
-                            return val
-                          })
-                        _vm.form_search = $event.target.multiple
-                          ? $$selectedVal
-                          : $$selectedVal[0]
-                      },
-                      _vm.UpdateProvinsi
-                    ]
-                  }
-                },
-                [
-                  _c("option", { attrs: { value: "" } }, [
-                    _vm._v("Pilih Provinsi")
-                  ]),
-                  _vm._v(" "),
-                  _vm._l(_vm.provinsi, function(item) {
-                    return _c("option", { domProps: { value: item.id } }, [
-                      _vm._v(_vm._s(item.provinsi))
-                    ])
-                  })
-                ],
-                2
-              )
-            ]),
-            _vm._v(" "),
-            _c("hr"),
-            _vm._v(" "),
-            _c("table", { staticClass: "table table-bordered" }, [
-              _c("thead", [
-                _c(
-                  "tr",
-                  [
-                    _c("th", { staticClass: "text_center" }, [_vm._v("Kota")]),
-                    _vm._v(" "),
-                    _vm._l(_vm.kriteria, function(item) {
-                      return _c("th", { staticClass: "text_center kriteria" }, [
-                        _vm._v(_vm._s(item.kriteria))
-                      ])
-                    }),
-                    _vm._v(" "),
-                    _c("th", { attrs: { width: "150px" } }, [_vm._v("Aksi")])
-                  ],
-                  2
-                )
-              ]),
-              _vm._v(" "),
-              _vm.table.data.length > 0
-                ? _c(
-                    "tbody",
-                    _vm._l(_vm.table.data, function(item) {
-                      return _c(
-                        "tr",
-                        { class: { active: !item.status } },
-                        [
-                          _c("td", [_vm._v(_vm._s(item.nama_kota))]),
-                          _vm._v(" "),
-                          _vm._l(_vm.kriteria, function(k, i) {
-                            return _c("td", { staticClass: "text_center" }, [
-                              _vm._v(_vm._s(item.kriterias[i].nilai))
-                            ])
-                          }),
-                          _vm._v(" "),
-                          _c("td", [
-                            _c(
-                              "div",
-                              {
-                                directives: [
-                                  {
-                                    name: "show",
-                                    rawName: "v-show",
-                                    value: item.status,
-                                    expression: "item.status"
-                                  }
-                                ],
-                                staticClass: "btn-group btn-group-xs"
-                              },
-                              [
-                                _c(
-                                  "router-link",
-                                  {
-                                    staticClass: "btn btn-primary",
-                                    attrs: {
-                                      to: {
-                                        name: "edit",
-                                        params: { id: item.id }
-                                      }
-                                    }
-                                  },
-                                  [_vm._v("ubah")]
-                                ),
-                                _vm._v(" "),
-                                _c(
-                                  "a",
-                                  {
-                                    staticClass: "btn btn-danger",
-                                    on: {
-                                      click: function($event) {
-                                        _vm.hapus(item.id)
-                                      }
-                                    }
-                                  },
-                                  [_vm._v("hapus")]
-                                )
-                              ],
-                              1
-                            ),
-                            _vm._v(" "),
-                            _c(
-                              "a",
-                              {
-                                directives: [
-                                  {
-                                    name: "show",
-                                    rawName: "v-show",
-                                    value: !item.status,
-                                    expression: "!item.status"
-                                  }
-                                ],
-                                staticClass: "btn btn-success btn-xs",
-                                on: {
-                                  click: function($event) {
-                                    _vm.check(item.id)
-                                  }
-                                }
-                              },
-                              [_vm._v("tampilkan")]
-                            )
-                          ])
-                        ],
-                        2
-                      )
-                    })
-                  )
-                : _vm._e(),
-              _vm._v(" "),
-              _vm.table.data.length == 0 ? _c("tbody", [_vm._m(2)]) : _vm._e(),
-              _vm._v(" "),
-              _c("tfoot", [
-                _c("tr", [
-                  _c("td", { attrs: { colspan: 1 + _vm.kriteria.length } }),
-                  _vm._v(" "),
-                  _c("td", [
-                    _c(
-                      "a",
-                      {
-                        staticClass: "btn btn-info btn-xs",
-                        attrs: { disabled: _vm.table.prev_page_url === null },
-                        on: { click: _vm.prev }
-                      },
-                      [_c("i", { staticClass: "fa fa-arrow-left" })]
-                    ),
-                    _vm._v(" "),
-                    _c(
-                      "a",
-                      {
-                        staticClass: "btn btn-info btn-xs",
-                        attrs: { disabled: _vm.table.next_page_url === null },
-                        on: { click: _vm.next }
-                      },
-                      [_c("i", { staticClass: "fa fa-arrow-right" })]
-                    )
-                  ])
-                ])
-              ])
-            ])
-          ],
-          1
-        )
-      ])
-    ])
-  ])
-}
-var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("h5", [
-      _vm._v("\n\t\tCalon Daerah Pemasaran "),
-      _c("i", { staticClass: "fa fa-angle-right" }),
-      _vm._v("\n\t\tList Data Calon Daerah Pemasaran\n\t")
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("h4", [
-      _c("i", { staticClass: "fa fa-users" }),
-      _vm._v(" Data Calon Daerah Pemasaran")
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("tr", [
-      _c("td", { attrs: { colspan: "3" } }, [
-        _c("h1", [_vm._v("data yg dicari tidak ada")])
-      ])
-    ])
-  }
-]
-render._withStripped = true
-module.exports = { render: render, staticRenderFns: staticRenderFns }
-if (false) {
-  module.hot.accept()
-  if (module.hot.data) {
-    require("vue-hot-reload-api")      .rerender("data-v-03d995d8", module.exports)
-  }
-}
-
-/***/ }),
-
-/***/ 273:
-/***/ (function(module, exports, __webpack_require__) {
-
-var disposed = false
-var normalizeComponent = __webpack_require__(2)
-/* script */
-var __vue_script__ = __webpack_require__(274)
-/* template */
-var __vue_template__ = __webpack_require__(275)
-/* template functional */
-var __vue_template_functional__ = false
-/* styles */
-var __vue_styles__ = null
-/* scopeId */
-var __vue_scopeId__ = null
-/* moduleIdentifier (server only) */
-var __vue_module_identifier__ = null
-var Component = normalizeComponent(
-  __vue_script__,
-  __vue_template__,
-  __vue_template_functional__,
-  __vue_styles__,
-  __vue_scopeId__,
-  __vue_module_identifier__
-)
-Component.options.__file = "resources\\assets\\admin\\calon-daerah-pemasaran\\component\\show.vue"
-
-/* hot reload */
-if (false) {(function () {
-  var hotAPI = require("vue-hot-reload-api")
-  hotAPI.install(require("vue"), false)
-  if (!hotAPI.compatible) return
-  module.hot.accept()
-  if (!module.hot.data) {
-    hotAPI.createRecord("data-v-5ecb59ea", Component.options)
-  } else {
-    hotAPI.reload("data-v-5ecb59ea", Component.options)
-  }
-  module.hot.dispose(function (data) {
-    disposed = true
-  })
-})()}
-
-module.exports = Component.exports
-
-
-/***/ }),
-
-/***/ 274:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-
-/* harmony default export */ __webpack_exports__["default"] = ({
-	name: 'Show',
-	props: ['id'],
-	data: function data() {
-		return {
-			data: {}
-		};
-	},
-
-	methods: {
-		getData: function getData() {
-			var that = this;
-			that.$http.get('/' + that.id).then(function (res) {
-				Vue.set(that.$data, 'data', res.data);
-			});
-		}
-	},
-	beforeMount: function beforeMount() {
-		this.getData();
-	}
-});
-
-/***/ }),
-
-/***/ 275:
-/***/ (function(module, exports, __webpack_require__) {
-
-var render = function() {
-  var _vm = this
-  var _h = _vm.$createElement
-  var _c = _vm._self._c || _h
-  return _c("div", [
-    _c(
-      "h5",
-      [
-        _vm._v("\n\t\t\tCalon Daerah Pemasaran "),
-        _c("i", { staticClass: "fa fa-angle-right" }),
-        _vm._v(" "),
-        _c("router-link", { attrs: { to: { name: "index" } } }, [
-          _vm._v("List Data Calon Daerah Pemasaran")
-        ]),
-        _vm._v(" "),
-        _c("i", { staticClass: "fa fa-angle-right" }),
-        _vm._v("\n\t\t\tLihat Calon Daerah Pemasaran\n\t\t")
-      ],
-      1
-    ),
-    _vm._v(" "),
-    _c("div", { staticClass: "row" }, [
-      _c("div", { staticClass: "col-lg-12" }, [
-        _c("div", { staticClass: "form-panel" }, [
-          _vm._m(0),
-          _vm._v(" "),
-          _c("table", { staticClass: "table table-bordered" }, [
-            _c("tbody", [
-              _c("tr", [
-                _c("th", [_vm._v("Nama")]),
-                _vm._v(" "),
-                _c("td", [_vm._v(":")]),
-                _vm._v(" "),
-                _c("td", [_vm._v(_vm._s(_vm.data.nama))])
-              ]),
-              _vm._v(" "),
-              _c("tr", [
-                _c("th", [_vm._v("Email")]),
-                _vm._v(" "),
-                _c("td", [_vm._v(":")]),
-                _vm._v(" "),
-                _c("td", [_vm._v(_vm._s(_vm.data.email))])
-              ]),
-              _vm._v(" "),
-              _c("tr", [
-                _c("th", [_vm._v("Status")]),
-                _vm._v(" "),
-                _c("td", [_vm._v(":")]),
-                _vm._v(" "),
-                _c("td", [_vm._v(_vm._s(_vm.data.status))])
-              ])
-            ])
-          ])
-        ])
-      ])
-    ])
-  ])
-}
-var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("h4", { staticClass: "mb" }, [
-      _c("i", { staticClass: "fa fa-users" }),
-      _vm._v(" Form Lihat Calon Daerah Pemasaran")
-    ])
-  }
-]
-render._withStripped = true
-module.exports = { render: render, staticRenderFns: staticRenderFns }
-if (false) {
-  module.hot.accept()
-  if (module.hot.data) {
-    require("vue-hot-reload-api")      .rerender("data-v-5ecb59ea", module.exports)
-  }
-}
-
-/***/ }),
-
-/***/ 276:
-/***/ (function(module, exports, __webpack_require__) {
-
-var disposed = false
-var normalizeComponent = __webpack_require__(2)
-/* script */
-var __vue_script__ = __webpack_require__(277)
-/* template */
-var __vue_template__ = __webpack_require__(278)
-/* template functional */
-var __vue_template_functional__ = false
-/* styles */
-var __vue_styles__ = null
-/* scopeId */
-var __vue_scopeId__ = null
-/* moduleIdentifier (server only) */
-var __vue_module_identifier__ = null
-var Component = normalizeComponent(
-  __vue_script__,
-  __vue_template__,
-  __vue_template_functional__,
-  __vue_styles__,
-  __vue_scopeId__,
-  __vue_module_identifier__
-)
-Component.options.__file = "resources\\assets\\admin\\calon-daerah-pemasaran\\component\\Create.vue"
-
-/* hot reload */
-if (false) {(function () {
-  var hotAPI = require("vue-hot-reload-api")
-  hotAPI.install(require("vue"), false)
-  if (!hotAPI.compatible) return
-  module.hot.accept()
-  if (!module.hot.data) {
-    hotAPI.createRecord("data-v-27f08fac", Component.options)
-  } else {
-    hotAPI.reload("data-v-27f08fac", Component.options)
-  }
-  module.hot.dispose(function (data) {
-    disposed = true
-  })
-})()}
-
-module.exports = Component.exports
-
-
-/***/ }),
-
-/***/ 277:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__config_env_config__ = __webpack_require__(11);
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-
-
-
-/* harmony default export */ __webpack_exports__["default"] = ({
-	name: 'Create',
-	data: function data() {
-		return {
-			data: {
-				provinsi: '',
-				kota: '',
-				kriterias: []
-			},
-			provinsi: [],
-			kota: [],
-			kriteria: []
-		};
-	},
-
-	methods: {
-		getDataProvinsi: function getDataProvinsi() {
-			var that = this;
-			that.$http.get(__WEBPACK_IMPORTED_MODULE_0__config_env_config__["b" /* base_url */] + '/select/provinsi').then(function (res) {
-				Vue.set(that.$data, 'provinsi', res.data);
-			});
-		},
-		getDataKota: function getDataKota() {
-			var that = this;
-			that.$http.get(__WEBPACK_IMPORTED_MODULE_0__config_env_config__["b" /* base_url */] + '/select/kota/' + that.data.provinsi).then(function (res) {
-				Vue.set(that.$data, 'kota', res.data);
-			});
-		},
-		getDataKriteria: function getDataKriteria() {
-			var _this = this;
-
-			var that = this;
-			that.$http.get(__WEBPACK_IMPORTED_MODULE_0__config_env_config__["b" /* base_url */] + '/select/kriteria').then(function (res) {
-				_this.data.kriterias = res.data;
-				Vue.set(that.$data, 'kriteria', res.data);
-			});
-		},
-		simpan: function simpan() {
-			var _this2 = this;
-
-			var that = this;
-			that.$http.post('', that.data).then(function (res) {
-				_this2.$swal({
-					text: res.data.message,
-					type: "success",
-					timer: 5000
-				}).then(function () {
-					_this2.$router.push({ name: 'index' });
-				});
-			});
-		}
-	},
-	beforeMount: function beforeMount() {
-		this.getDataKriteria();
-		this.getDataProvinsi();
-	}
-});
-
-/***/ }),
-
-/***/ 278:
-/***/ (function(module, exports, __webpack_require__) {
-
-var render = function() {
-  var _vm = this
-  var _h = _vm.$createElement
-  var _c = _vm._self._c || _h
-  return _c("div", [
-    _c(
-      "h5",
-      [
-        _vm._v("\n\t\t\tCalon Daerah Pemasaran "),
-        _c("i", { staticClass: "fa fa-angle-right" }),
-        _vm._v(" "),
-        _c("router-link", { attrs: { to: { name: "index" } } }, [
-          _vm._v("List Data Calon Daerah Pemasaran")
-        ]),
-        _vm._v(" "),
-        _c("i", { staticClass: "fa fa-angle-right" }),
-        _vm._v("\n\t\t\tTambah Calon Daerah Pemasaran\n\t\t")
-      ],
-      1
-    ),
-    _vm._v(" "),
-    _c("div", { staticClass: "row" }, [
-      _c("div", { staticClass: "col-lg-12" }, [
-        _c("div", { staticClass: "form-panel" }, [
-          _vm._m(0),
-          _vm._v(" "),
-          _c(
-            "form",
-            {
-              staticClass: "form-horizontal",
-              on: {
-                submit: function($event) {
-                  $event.preventDefault()
-                  _vm.simpan($event)
-                }
-              }
-            },
-            [
-              _c("div", { staticClass: "form-group" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "control-label col-md-2",
-                    attrs: { for: "provinsi" }
-                  },
-                  [_vm._v("Provinsi")]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-md-10" }, [
-                  _c(
-                    "select",
-                    {
-                      directives: [
-                        {
-                          name: "model",
-                          rawName: "v-model",
-                          value: _vm.data.provinsi,
-                          expression: "data.provinsi"
-                        }
-                      ],
-                      staticClass: "form-control",
-                      attrs: { id: "provinsi" },
-                      on: {
-                        change: [
-                          function($event) {
-                            var $$selectedVal = Array.prototype.filter
-                              .call($event.target.options, function(o) {
-                                return o.selected
-                              })
-                              .map(function(o) {
-                                var val = "_value" in o ? o._value : o.value
-                                return val
-                              })
-                            _vm.$set(
-                              _vm.data,
-                              "provinsi",
-                              $event.target.multiple
-                                ? $$selectedVal
-                                : $$selectedVal[0]
-                            )
-                          },
-                          _vm.getDataKota
-                        ]
-                      }
-                    },
-                    _vm._l(_vm.provinsi, function(item) {
-                      return _c("option", { domProps: { value: item.id } }, [
-                        _vm._v(_vm._s(item.provinsi))
-                      ])
-                    })
-                  )
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "form-group" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "control-label col-md-2",
-                    attrs: { for: "kota" }
-                  },
-                  [_vm._v("Kota")]
-                ),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-md-10" }, [
-                  _c(
-                    "select",
-                    {
-                      directives: [
-                        {
-                          name: "model",
-                          rawName: "v-model",
-                          value: _vm.data.kota,
-                          expression: "data.kota"
-                        }
-                      ],
-                      staticClass: "form-control",
-                      attrs: { id: "kota" },
-                      on: {
-                        change: function($event) {
-                          var $$selectedVal = Array.prototype.filter
-                            .call($event.target.options, function(o) {
-                              return o.selected
-                            })
-                            .map(function(o) {
-                              var val = "_value" in o ? o._value : o.value
-                              return val
-                            })
-                          _vm.$set(
-                            _vm.data,
-                            "kota",
-                            $event.target.multiple
-                              ? $$selectedVal
-                              : $$selectedVal[0]
-                          )
-                        }
-                      }
-                    },
-                    _vm._l(_vm.kota, function(item) {
-                      return _c("option", { domProps: { value: item.id } }, [
-                        _vm._v(_vm._s(item.kota))
-                      ])
-                    })
-                  )
-                ])
-              ]),
-              _vm._v(" "),
-              _vm._l(_vm.data.kriterias, function(item, idx) {
-                return _c("div", { staticClass: "form-group" }, [
-                  _c(
-                    "label",
-                    {
-                      staticClass: "control-label col-md-2",
-                      attrs: { for: "nilai" }
-                    },
-                    [_vm._v("Nilai " + _vm._s(item.kriteria))]
-                  ),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "col-md-10" }, [
-                    _c("input", {
-                      directives: [
-                        {
-                          name: "model",
-                          rawName: "v-model",
-                          value: item.nilai,
-                          expression: "item.nilai"
-                        }
-                      ],
-                      key: item.id,
-                      staticClass: "form-control",
-                      attrs: { type: "text", id: "nilai" },
-                      domProps: { value: item.nilai },
-                      on: {
-                        input: function($event) {
-                          if ($event.target.composing) {
-                            return
-                          }
-                          _vm.$set(item, "nilai", $event.target.value)
-                        }
-                      }
-                    })
-                  ])
-                ])
-              }),
-              _vm._v(" "),
-              _c("button", { staticClass: "btn btn-default" }, [
-                _vm._v("Simpan")
-              ])
-            ],
-            2
-          )
-        ])
-      ])
-    ])
-  ])
-}
-var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("h4", { staticClass: "mb" }, [
-      _c("i", { staticClass: "fa fa-users" }),
-      _vm._v(" Form Tambah Calon Daerah Pemasaran")
-    ])
-  }
-]
-render._withStripped = true
-module.exports = { render: render, staticRenderFns: staticRenderFns }
-if (false) {
-  module.hot.accept()
-  if (module.hot.data) {
-    require("vue-hot-reload-api")      .rerender("data-v-27f08fac", module.exports)
-  }
-}
-
-/***/ }),
-
-/***/ 279:
-/***/ (function(module, exports, __webpack_require__) {
-
-var disposed = false
-var normalizeComponent = __webpack_require__(2)
-/* script */
-var __vue_script__ = __webpack_require__(280)
-/* template */
-var __vue_template__ = __webpack_require__(281)
-/* template functional */
-var __vue_template_functional__ = false
-/* styles */
-var __vue_styles__ = null
-/* scopeId */
-var __vue_scopeId__ = null
-/* moduleIdentifier (server only) */
-var __vue_module_identifier__ = null
-var Component = normalizeComponent(
-  __vue_script__,
-  __vue_template__,
-  __vue_template_functional__,
-  __vue_styles__,
-  __vue_scopeId__,
-  __vue_module_identifier__
-)
-Component.options.__file = "resources\\assets\\admin\\calon-daerah-pemasaran\\component\\Edit.vue"
-
-/* hot reload */
-if (false) {(function () {
-  var hotAPI = require("vue-hot-reload-api")
-  hotAPI.install(require("vue"), false)
-  if (!hotAPI.compatible) return
-  module.hot.accept()
-  if (!module.hot.data) {
-    hotAPI.createRecord("data-v-4823fbb8", Component.options)
-  } else {
-    hotAPI.reload("data-v-4823fbb8", Component.options)
-  }
-  module.hot.dispose(function (data) {
-    disposed = true
-  })
-})()}
-
-module.exports = Component.exports
-
-
-/***/ }),
-
-/***/ 28:
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -22333,249 +21517,18 @@ module.exports = InterceptorManager;
 
 
 /***/ }),
-
-/***/ 280:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__config_env_config__ = __webpack_require__(11);
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-
-
-
-/* harmony default export */ __webpack_exports__["default"] = ({
-	name: 'Edit',
-	props: ['id'],
-	data: function data() {
-		return {
-			data: {
-				provinsi_id: '',
-				kota_id: '',
-				kriterias: []
-			},
-			provinsi: [],
-			kota: [],
-			kriteria: []
-		};
-	},
-
-	methods: {
-		getData: function getData() {
-			var that = this;
-			that.$http.get('/' + that.id).then(function (res) {
-				Vue.set(that.$data, 'data', res.data);
-			});
-		},
-		getDataProvinsi: function getDataProvinsi() {
-			var that = this;
-			that.$http.get(__WEBPACK_IMPORTED_MODULE_0__config_env_config__["b" /* base_url */] + 'select/provinsi').then(function (res) {
-				Vue.set(that.$data, 'provinsi', res.data);
-			});
-		},
-		getDataKota: function getDataKota() {
-			var that = this;
-			that.$http.get(__WEBPACK_IMPORTED_MODULE_0__config_env_config__["b" /* base_url */] + 'select/kota/' + that.data.provinsi).then(function (res) {
-				Vue.set(that.$data, 'kota', res.data);
-			});
-		},
-		getDataKriteria: function getDataKriteria() {
-			var that = this;
-			that.$http.get(__WEBPACK_IMPORTED_MODULE_0__config_env_config__["b" /* base_url */] + 'select/kriteria').then(function (res) {
-				Vue.set(that.$data, 'kriteria', res.data);
-			});
-		},
-		simpan: function simpan() {
-			var _this = this;
-
-			var that = this;
-			that.$http.put('/' + this.data.id, this.data).then(function (res) {
-				_this.$swal({
-					text: res.data.message,
-					type: "success",
-					timer: 5000
-				}).then(function () {
-					_this.$router.push({ name: 'index' });
-				});
-			});
-		}
-	},
-	beforeMount: function beforeMount() {
-		this.getDataKriteria();
-		this.getDataProvinsi();
-		this.getData();
-	}
-});
-
-/***/ }),
-
-/***/ 281:
-/***/ (function(module, exports, __webpack_require__) {
-
-var render = function() {
-  var _vm = this
-  var _h = _vm.$createElement
-  var _c = _vm._self._c || _h
-  return _c("div", [
-    _c(
-      "h5",
-      [
-        _vm._v("\n\t\t\tCalon Daerah Pemasaran "),
-        _c("i", { staticClass: "fa fa-angle-right" }),
-        _vm._v(" "),
-        _c("router-link", { attrs: { to: { name: "index" } } }, [
-          _vm._v("List Data Calon Daerah Pemasaran")
-        ]),
-        _vm._v(" "),
-        _c("i", { staticClass: "fa fa-angle-right" }),
-        _vm._v("\n\t\t\tEdit Calon Daerah Pemasaran\n\t\t")
-      ],
-      1
-    ),
-    _vm._v(" "),
-    _c("div", { staticClass: "row" }, [
-      _c("div", { staticClass: "col-lg-12" }, [
-        _c("div", { staticClass: "form-panel" }, [
-          _vm._m(0),
-          _vm._v(" "),
-          _c(
-            "form",
-            {
-              staticClass: "form-horizontal",
-              on: {
-                submit: function($event) {
-                  $event.preventDefault()
-                  _vm.simpan($event)
-                }
-              }
-            },
-            [
-              _vm._l(_vm.data.kriterias, function(item, idx) {
-                return _c("div", { staticClass: "form-group" }, [
-                  _c(
-                    "label",
-                    {
-                      staticClass: "control-label col-md-2",
-                      attrs: { for: "nilai" }
-                    },
-                    [_vm._v("Nilai " + _vm._s(item.kriteria))]
-                  ),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "col-md-10" }, [
-                    _c("input", {
-                      directives: [
-                        {
-                          name: "model",
-                          rawName: "v-model",
-                          value: item.nilai,
-                          expression: "item.nilai"
-                        }
-                      ],
-                      key: item.id,
-                      staticClass: "form-control",
-                      attrs: { type: "text", id: "nilai" },
-                      domProps: { value: item.nilai },
-                      on: {
-                        input: function($event) {
-                          if ($event.target.composing) {
-                            return
-                          }
-                          _vm.$set(item, "nilai", $event.target.value)
-                        }
-                      }
-                    })
-                  ])
-                ])
-              }),
-              _vm._v(" "),
-              _c("button", { staticClass: "btn btn-default" }, [
-                _vm._v("Simpan")
-              ])
-            ],
-            2
-          )
-        ])
-      ])
-    ])
-  ])
-}
-var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("h4", { staticClass: "mb" }, [
-      _c("i", { staticClass: "fa fa-users" }),
-      _vm._v(" Form Edit Calon Daerah Pemasaran")
-    ])
-  }
-]
-render._withStripped = true
-module.exports = { render: render, staticRenderFns: staticRenderFns }
-if (false) {
-  module.hot.accept()
-  if (module.hot.data) {
-    require("vue-hot-reload-api")      .rerender("data-v-4823fbb8", module.exports)
-  }
-}
-
-/***/ }),
-
-/***/ 29:
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 var utils = __webpack_require__(0);
-var transformData = __webpack_require__(30);
-var isCancel = __webpack_require__(9);
-var defaults = __webpack_require__(4);
-var isAbsoluteURL = __webpack_require__(31);
-var combineURLs = __webpack_require__(32);
+var transformData = __webpack_require__(29);
+var isCancel = __webpack_require__(8);
+var defaults = __webpack_require__(3);
+var isAbsoluteURL = __webpack_require__(30);
+var combineURLs = __webpack_require__(31);
 
 /**
  * Throws a `Cancel` if cancellation has been requested.
@@ -22657,36 +21610,7 @@ module.exports = function dispatchRequest(config) {
 
 
 /***/ }),
-
-/***/ 3:
-/***/ (function(module, exports) {
-
-var g;
-
-// This works in non-strict mode
-g = (function() {
-	return this;
-})();
-
-try {
-	// This works if eval is allowed (see CSP)
-	g = g || Function("return this")() || (1,eval)("this");
-} catch(e) {
-	// This works if the window reference is available
-	if(typeof window === "object")
-		g = window;
-}
-
-// g can still be undefined, but nothing to do about it...
-// We return undefined, instead of nothing here, so it's
-// easier to handle this case. if(!global) { ...}
-
-module.exports = g;
-
-
-/***/ }),
-
-/***/ 30:
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -22713,8 +21637,7 @@ module.exports = function transformData(data, headers, fns) {
 
 
 /***/ }),
-
-/***/ 31:
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -22735,8 +21658,7 @@ module.exports = function isAbsoluteURL(url) {
 
 
 /***/ }),
-
-/***/ 32:
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -22757,14 +21679,13 @@ module.exports = function combineURLs(baseURL, relativeURL) {
 
 
 /***/ }),
-
-/***/ 33:
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var Cancel = __webpack_require__(10);
+var Cancel = __webpack_require__(9);
 
 /**
  * A `CancelToken` is an object that can be used to request cancellation of an operation.
@@ -22822,8 +21743,7 @@ module.exports = CancelToken;
 
 
 /***/ }),
-
-/***/ 34:
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -22857,8 +21777,7 @@ module.exports = function spread(callback) {
 
 
 /***/ }),
-
-/***/ 35:
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -33672,11 +32591,10 @@ Vue$3.compile = compileToFunctions;
 
 module.exports = Vue$3;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3), __webpack_require__(36).setImmediate))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2), __webpack_require__(35).setImmediate))
 
 /***/ }),
-
-/***/ 36:
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var apply = Function.prototype.apply;
@@ -33729,14 +32647,13 @@ exports._unrefActive = exports.active = function(item) {
 };
 
 // setimmediate attaches itself to the global object
-__webpack_require__(37);
+__webpack_require__(36);
 exports.setImmediate = setImmediate;
 exports.clearImmediate = clearImmediate;
 
 
 /***/ }),
-
-/***/ 37:
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global, process) {(function (global, undefined) {
@@ -33926,11 +32843,10 @@ exports.clearImmediate = clearImmediate;
     attachTo.clearImmediate = clearImmediate;
 }(typeof self === "undefined" ? typeof global === "undefined" ? this : global : self));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3), __webpack_require__(6)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2), __webpack_require__(5)))
 
 /***/ }),
-
-/***/ 38:
+/* 37 */
 /***/ (function(module, exports) {
 
 /*
@@ -34012,8 +32928,7 @@ function toComment(sourceMap) {
 
 
 /***/ }),
-
-/***/ 39:
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -34032,7 +32947,7 @@ if (typeof DEBUG !== 'undefined' && DEBUG) {
   ) }
 }
 
-var listToStyles = __webpack_require__(40)
+var listToStyles = __webpack_require__(39)
 
 /*
 type StyleObject = {
@@ -34234,109 +33149,7 @@ function applyToTag (styleElement, obj) {
 
 
 /***/ }),
-
-/***/ 4:
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(process) {
-
-var utils = __webpack_require__(0);
-var normalizeHeaderName = __webpack_require__(20);
-
-var DEFAULT_CONTENT_TYPE = {
-  'Content-Type': 'application/x-www-form-urlencoded'
-};
-
-function setContentTypeIfUnset(headers, value) {
-  if (!utils.isUndefined(headers) && utils.isUndefined(headers['Content-Type'])) {
-    headers['Content-Type'] = value;
-  }
-}
-
-function getDefaultAdapter() {
-  var adapter;
-  if (typeof XMLHttpRequest !== 'undefined') {
-    // For browsers use XHR adapter
-    adapter = __webpack_require__(7);
-  } else if (typeof process !== 'undefined') {
-    // For node use HTTP adapter
-    adapter = __webpack_require__(7);
-  }
-  return adapter;
-}
-
-var defaults = {
-  adapter: getDefaultAdapter(),
-
-  transformRequest: [function transformRequest(data, headers) {
-    normalizeHeaderName(headers, 'Content-Type');
-    if (utils.isFormData(data) ||
-      utils.isArrayBuffer(data) ||
-      utils.isBuffer(data) ||
-      utils.isStream(data) ||
-      utils.isFile(data) ||
-      utils.isBlob(data)
-    ) {
-      return data;
-    }
-    if (utils.isArrayBufferView(data)) {
-      return data.buffer;
-    }
-    if (utils.isURLSearchParams(data)) {
-      setContentTypeIfUnset(headers, 'application/x-www-form-urlencoded;charset=utf-8');
-      return data.toString();
-    }
-    if (utils.isObject(data)) {
-      setContentTypeIfUnset(headers, 'application/json;charset=utf-8');
-      return JSON.stringify(data);
-    }
-    return data;
-  }],
-
-  transformResponse: [function transformResponse(data) {
-    /*eslint no-param-reassign:0*/
-    if (typeof data === 'string') {
-      try {
-        data = JSON.parse(data);
-      } catch (e) { /* Ignore */ }
-    }
-    return data;
-  }],
-
-  timeout: 0,
-
-  xsrfCookieName: 'XSRF-TOKEN',
-  xsrfHeaderName: 'X-XSRF-TOKEN',
-
-  maxContentLength: -1,
-
-  validateStatus: function validateStatus(status) {
-    return status >= 200 && status < 300;
-  }
-};
-
-defaults.headers = {
-  common: {
-    'Accept': 'application/json, text/plain, */*'
-  }
-};
-
-utils.forEach(['delete', 'get', 'head'], function forEachMethodNoData(method) {
-  defaults.headers[method] = {};
-});
-
-utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
-  defaults.headers[method] = utils.merge(DEFAULT_CONTENT_TYPE);
-});
-
-module.exports = defaults;
-
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6)))
-
-/***/ }),
-
-/***/ 40:
+/* 39 */
 /***/ (function(module, exports) {
 
 /**
@@ -34369,8 +33182,7 @@ module.exports = function listToStyles (parentId, list) {
 
 
 /***/ }),
-
-/***/ 41:
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -36285,442 +35097,1665 @@ if (typeof window !== 'undefined' && window.Sweetalert2) window.sweetAlert = win
 
 
 /***/ }),
-
-/***/ 5:
+/* 41 */,
+/* 42 */,
+/* 43 */,
+/* 44 */,
+/* 45 */,
+/* 46 */,
+/* 47 */,
+/* 48 */,
+/* 49 */,
+/* 50 */,
+/* 51 */,
+/* 52 */,
+/* 53 */,
+/* 54 */,
+/* 55 */,
+/* 56 */,
+/* 57 */,
+/* 58 */,
+/* 59 */,
+/* 60 */,
+/* 61 */,
+/* 62 */,
+/* 63 */,
+/* 64 */,
+/* 65 */,
+/* 66 */,
+/* 67 */,
+/* 68 */,
+/* 69 */,
+/* 70 */,
+/* 71 */,
+/* 72 */,
+/* 73 */,
+/* 74 */,
+/* 75 */,
+/* 76 */,
+/* 77 */,
+/* 78 */,
+/* 79 */,
+/* 80 */,
+/* 81 */,
+/* 82 */,
+/* 83 */,
+/* 84 */,
+/* 85 */,
+/* 86 */,
+/* 87 */,
+/* 88 */,
+/* 89 */,
+/* 90 */,
+/* 91 */,
+/* 92 */,
+/* 93 */,
+/* 94 */,
+/* 95 */,
+/* 96 */,
+/* 97 */,
+/* 98 */,
+/* 99 */,
+/* 100 */,
+/* 101 */,
+/* 102 */,
+/* 103 */,
+/* 104 */,
+/* 105 */,
+/* 106 */,
+/* 107 */,
+/* 108 */,
+/* 109 */,
+/* 110 */,
+/* 111 */,
+/* 112 */,
+/* 113 */,
+/* 114 */,
+/* 115 */,
+/* 116 */,
+/* 117 */,
+/* 118 */,
+/* 119 */,
+/* 120 */,
+/* 121 */,
+/* 122 */,
+/* 123 */,
+/* 124 */,
+/* 125 */,
+/* 126 */,
+/* 127 */,
+/* 128 */,
+/* 129 */,
+/* 130 */,
+/* 131 */,
+/* 132 */,
+/* 133 */,
+/* 134 */,
+/* 135 */,
+/* 136 */,
+/* 137 */,
+/* 138 */
 /***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
-
-
-module.exports = function bind(fn, thisArg) {
-  return function wrap() {
-    var args = new Array(arguments.length);
-    for (var i = 0; i < args.length; i++) {
-      args[i] = arguments[i];
-    }
-    return fn.apply(thisArg, args);
-  };
-};
+module.exports = __webpack_require__(139);
 
 
 /***/ }),
+/* 139 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-/***/ 6:
-/***/ (function(module, exports) {
-
-// shim for using process in browser
-var process = module.exports = {};
-
-// cached from whatever global is present so that test runners that stub it
-// don't break things.  But we need to wrap it in a try catch in case it is
-// wrapped in strict mode code which doesn't define any globals.  It's inside a
-// function because try/catches deoptimize in certain engines.
-
-var cachedSetTimeout;
-var cachedClearTimeout;
-
-function defaultSetTimout() {
-    throw new Error('setTimeout has not been defined');
-}
-function defaultClearTimeout () {
-    throw new Error('clearTimeout has not been defined');
-}
-(function () {
-    try {
-        if (typeof setTimeout === 'function') {
-            cachedSetTimeout = setTimeout;
-        } else {
-            cachedSetTimeout = defaultSetTimout;
-        }
-    } catch (e) {
-        cachedSetTimeout = defaultSetTimout;
-    }
-    try {
-        if (typeof clearTimeout === 'function') {
-            cachedClearTimeout = clearTimeout;
-        } else {
-            cachedClearTimeout = defaultClearTimeout;
-        }
-    } catch (e) {
-        cachedClearTimeout = defaultClearTimeout;
-    }
-} ())
-function runTimeout(fun) {
-    if (cachedSetTimeout === setTimeout) {
-        //normal enviroments in sane situations
-        return setTimeout(fun, 0);
-    }
-    // if setTimeout wasn't available but was latter defined
-    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
-        cachedSetTimeout = setTimeout;
-        return setTimeout(fun, 0);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedSetTimeout(fun, 0);
-    } catch(e){
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
-            return cachedSetTimeout.call(null, fun, 0);
-        } catch(e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
-            return cachedSetTimeout.call(this, fun, 0);
-        }
-    }
-
-
-}
-function runClearTimeout(marker) {
-    if (cachedClearTimeout === clearTimeout) {
-        //normal enviroments in sane situations
-        return clearTimeout(marker);
-    }
-    // if clearTimeout wasn't available but was latter defined
-    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
-        cachedClearTimeout = clearTimeout;
-        return clearTimeout(marker);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedClearTimeout(marker);
-    } catch (e){
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
-            return cachedClearTimeout.call(null, marker);
-        } catch (e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
-            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
-            return cachedClearTimeout.call(this, marker);
-        }
-    }
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__config_env_config__ = __webpack_require__(10);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__component_App_vue__ = __webpack_require__(140);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__component_App_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__component_App_vue__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_vue_router__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__router_js__ = __webpack_require__(143);
+__webpack_require__(12);
 
 
 
-}
-var queue = [];
-var draining = false;
-var currentQueue;
-var queueIndex = -1;
+window.Vue = __webpack_require__(34);
 
-function cleanUpNextTick() {
-    if (!draining || !currentQueue) {
-        return;
-    }
-    draining = false;
-    if (currentQueue.length) {
-        queue = currentQueue.concat(queue);
-    } else {
-        queueIndex = -1;
-    }
-    if (queue.length) {
-        drainQueue();
-    }
-}
 
-function drainQueue() {
-    if (draining) {
-        return;
-    }
-    var timeout = runTimeout(cleanUpNextTick);
-    draining = true;
 
-    var len = queue.length;
-    while(len) {
-        currentQueue = queue;
-        queue = [];
-        while (++queueIndex < len) {
-            if (currentQueue) {
-                currentQueue[queueIndex].run();
-            }
-        }
-        queueIndex = -1;
-        len = queue.length;
-    }
-    currentQueue = null;
-    draining = false;
-    runClearTimeout(timeout);
-}
 
-process.nextTick = function (fun) {
-    var args = new Array(arguments.length - 1);
-    if (arguments.length > 1) {
-        for (var i = 1; i < arguments.length; i++) {
-            args[i - 1] = arguments[i];
-        }
-    }
-    queue.push(new Item(fun, args));
-    if (queue.length === 1 && !draining) {
-        runTimeout(drainQueue);
-    }
+Vue.use(__WEBPACK_IMPORTED_MODULE_2_vue_router__["a" /* default */]);
+
+
+//Plugin sweetalert2
+var swal = __webpack_require__(40);
+var swalPlugin = {};
+swalPlugin.install = function (Vue) {
+    Vue.prototype.$swal = swal;
 };
+Vue.use(swalPlugin);
 
-// v8 likes predictible objects
-function Item(fun, array) {
-    this.fun = fun;
-    this.array = array;
-}
-Item.prototype.run = function () {
-    this.fun.apply(null, this.array);
-};
-process.title = 'browser';
-process.browser = true;
-process.env = {};
-process.argv = [];
-process.version = ''; // empty string to avoid regexp issues
-process.versions = {};
+var _http = axios.create({
+    baseURL: __WEBPACK_IMPORTED_MODULE_0__config_env_config__["b" /* base_url */] + '/calon-daerah-pemasaran',
+    headers: {
+        Authorization: 'Bearer ' + localStorage.getItem('token')
+    }
+});
+_http.interceptors.response.use(function (response) {
+    return response;
+}, function (error) {
+    // Do something with response error
+    if (error.response.status === 401 || error.response.status === 500) {
+        swal(error.response.statusText, error.response.data.message, "error");
+    }
+    if (error.response.status === 422) {
+        var contentHtml = '';
+        Object.keys(error.response.data.errors).forEach(function (key) {
+            contentHtml += '<p class="text-danger">' + error.response.data.errors[key][0] + '</p>';
+        });
 
-function noop() {}
+        swal({
+            title: error.response.data.message,
+            html: contentHtml,
+            type: 'error',
+            timer: 5000
+        });
+    }
+    return Promise.reject(error.response);
+});
+Vue.prototype.$http = _http;
+Vue.config.productionTip = false;
 
-process.on = noop;
-process.addListener = noop;
-process.once = noop;
-process.off = noop;
-process.removeListener = noop;
-process.removeAllListeners = noop;
-process.emit = noop;
-process.prependListener = noop;
-process.prependOnceListener = noop;
+var app = new Vue({
+    el: '#root',
+    template: '<app></app>',
+    components: { App: __WEBPACK_IMPORTED_MODULE_1__component_App_vue___default.a },
+    router: __WEBPACK_IMPORTED_MODULE_3__router_js__["a" /* default */]
+});
 
-process.listeners = function (name) { return [] }
+/***/ }),
+/* 140 */
+/***/ (function(module, exports, __webpack_require__) {
 
-process.binding = function (name) {
-    throw new Error('process.binding is not supported');
-};
+var disposed = false
+var normalizeComponent = __webpack_require__(1)
+/* script */
+var __vue_script__ = __webpack_require__(141)
+/* template */
+var __vue_template__ = __webpack_require__(142)
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources\\assets\\admin\\calon-daerah-pemasaran\\component\\App.vue"
 
-process.cwd = function () { return '/' };
-process.chdir = function (dir) {
-    throw new Error('process.chdir is not supported');
-};
-process.umask = function() { return 0; };
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-4bbae963", Component.options)
+  } else {
+    hotAPI.reload("data-v-4bbae963", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
 
 
 /***/ }),
-
-/***/ 7:
-/***/ (function(module, exports, __webpack_require__) {
+/* 141 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+	name: "App"
+});
+
+/***/ }),
+/* 142 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c(
+    "div",
+    { attrs: { id: "root" } },
+    [_vm._m(0), _vm._v(" "), _c("hr"), _vm._v(" "), [_c("router-view")]],
+    2
+  )
+}
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("h3", [
+      _c("i", { staticClass: "fa fa-users" }),
+      _vm._v(" Calon Daerah Pemasaran")
+    ])
+  }
+]
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-4bbae963", module.exports)
+  }
+}
+
+/***/ }),
+/* 143 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue_router__ = __webpack_require__(11);
 
 
-var utils = __webpack_require__(0);
-var settle = __webpack_require__(21);
-var buildURL = __webpack_require__(23);
-var parseHeaders = __webpack_require__(24);
-var isURLSameOrigin = __webpack_require__(25);
-var createError = __webpack_require__(8);
-var btoa = (typeof window !== 'undefined' && window.btoa && window.btoa.bind(window)) || __webpack_require__(26);
+/* harmony default export */ __webpack_exports__["a"] = (new __WEBPACK_IMPORTED_MODULE_0_vue_router__["a" /* default */]({
+    routes: [{ path: '/', component: __webpack_require__(144), name: 'index' }, { path: '/:id/lihat', component: __webpack_require__(149), name: 'show', props: true }, { path: '/create', component: __webpack_require__(152), name: 'create' }, { path: '/:id/edit', component: __webpack_require__(155), name: 'edit', props: true }]
+}));
 
-module.exports = function xhrAdapter(config) {
-  return new Promise(function dispatchXhrRequest(resolve, reject) {
-    var requestData = config.data;
-    var requestHeaders = config.headers;
+/***/ }),
+/* 144 */
+/***/ (function(module, exports, __webpack_require__) {
 
-    if (utils.isFormData(requestData)) {
-      delete requestHeaders['Content-Type']; // Let the browser set it
-    }
+var disposed = false
+function injectStyle (ssrContext) {
+  if (disposed) return
+  __webpack_require__(145)
+}
+var normalizeComponent = __webpack_require__(1)
+/* script */
+var __vue_script__ = __webpack_require__(147)
+/* template */
+var __vue_template__ = __webpack_require__(148)
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = injectStyle
+/* scopeId */
+var __vue_scopeId__ = "data-v-03d995d8"
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources\\assets\\admin\\calon-daerah-pemasaran\\component\\Index.vue"
 
-    var request = new XMLHttpRequest();
-    var loadEvent = 'onreadystatechange';
-    var xDomain = false;
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-03d995d8", Component.options)
+  } else {
+    hotAPI.reload("data-v-03d995d8", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
 
-    // For IE 8/9 CORS support
-    // Only supports POST and GET calls and doesn't returns the response headers.
-    // DON'T do this for testing b/c XMLHttpRequest is mocked, not XDomainRequest.
-    if ("development" !== 'test' &&
-        typeof window !== 'undefined' &&
-        window.XDomainRequest && !('withCredentials' in request) &&
-        !isURLSameOrigin(config.url)) {
-      request = new window.XDomainRequest();
-      loadEvent = 'onload';
-      xDomain = true;
-      request.onprogress = function handleProgress() {};
-      request.ontimeout = function handleTimeout() {};
-    }
-
-    // HTTP basic authentication
-    if (config.auth) {
-      var username = config.auth.username || '';
-      var password = config.auth.password || '';
-      requestHeaders.Authorization = 'Basic ' + btoa(username + ':' + password);
-    }
-
-    request.open(config.method.toUpperCase(), buildURL(config.url, config.params, config.paramsSerializer), true);
-
-    // Set the request timeout in MS
-    request.timeout = config.timeout;
-
-    // Listen for ready state
-    request[loadEvent] = function handleLoad() {
-      if (!request || (request.readyState !== 4 && !xDomain)) {
-        return;
-      }
-
-      // The request errored out and we didn't get a response, this will be
-      // handled by onerror instead
-      // With one exception: request that using file: protocol, most browsers
-      // will return status as 0 even though it's a successful request
-      if (request.status === 0 && !(request.responseURL && request.responseURL.indexOf('file:') === 0)) {
-        return;
-      }
-
-      // Prepare the response
-      var responseHeaders = 'getAllResponseHeaders' in request ? parseHeaders(request.getAllResponseHeaders()) : null;
-      var responseData = !config.responseType || config.responseType === 'text' ? request.responseText : request.response;
-      var response = {
-        data: responseData,
-        // IE sends 1223 instead of 204 (https://github.com/axios/axios/issues/201)
-        status: request.status === 1223 ? 204 : request.status,
-        statusText: request.status === 1223 ? 'No Content' : request.statusText,
-        headers: responseHeaders,
-        config: config,
-        request: request
-      };
-
-      settle(resolve, reject, response);
-
-      // Clean up request
-      request = null;
-    };
-
-    // Handle low level network errors
-    request.onerror = function handleError() {
-      // Real errors are hidden from us by the browser
-      // onerror should only fire if it's a network error
-      reject(createError('Network Error', config, null, request));
-
-      // Clean up request
-      request = null;
-    };
-
-    // Handle timeout
-    request.ontimeout = function handleTimeout() {
-      reject(createError('timeout of ' + config.timeout + 'ms exceeded', config, 'ECONNABORTED',
-        request));
-
-      // Clean up request
-      request = null;
-    };
-
-    // Add xsrf header
-    // This is only done if running in a standard browser environment.
-    // Specifically not if we're in a web worker, or react-native.
-    if (utils.isStandardBrowserEnv()) {
-      var cookies = __webpack_require__(27);
-
-      // Add xsrf header
-      var xsrfValue = (config.withCredentials || isURLSameOrigin(config.url)) && config.xsrfCookieName ?
-          cookies.read(config.xsrfCookieName) :
-          undefined;
-
-      if (xsrfValue) {
-        requestHeaders[config.xsrfHeaderName] = xsrfValue;
-      }
-    }
-
-    // Add headers to the request
-    if ('setRequestHeader' in request) {
-      utils.forEach(requestHeaders, function setRequestHeader(val, key) {
-        if (typeof requestData === 'undefined' && key.toLowerCase() === 'content-type') {
-          // Remove Content-Type if data is undefined
-          delete requestHeaders[key];
-        } else {
-          // Otherwise add header to the request
-          request.setRequestHeader(key, val);
-        }
-      });
-    }
-
-    // Add withCredentials to request if needed
-    if (config.withCredentials) {
-      request.withCredentials = true;
-    }
-
-    // Add responseType to request if needed
-    if (config.responseType) {
-      try {
-        request.responseType = config.responseType;
-      } catch (e) {
-        // Expected DOMException thrown by browsers not compatible XMLHttpRequest Level 2.
-        // But, this can be suppressed for 'json' type as it can be parsed by default 'transformResponse' function.
-        if (config.responseType !== 'json') {
-          throw e;
-        }
-      }
-    }
-
-    // Handle progress if needed
-    if (typeof config.onDownloadProgress === 'function') {
-      request.addEventListener('progress', config.onDownloadProgress);
-    }
-
-    // Not all browsers support upload events
-    if (typeof config.onUploadProgress === 'function' && request.upload) {
-      request.upload.addEventListener('progress', config.onUploadProgress);
-    }
-
-    if (config.cancelToken) {
-      // Handle cancellation
-      config.cancelToken.promise.then(function onCanceled(cancel) {
-        if (!request) {
-          return;
-        }
-
-        request.abort();
-        reject(cancel);
-        // Clean up request
-        request = null;
-      });
-    }
-
-    if (requestData === undefined) {
-      requestData = null;
-    }
-
-    // Send the request
-    request.send(requestData);
-  });
-};
+module.exports = Component.exports
 
 
 /***/ }),
-
-/***/ 8:
+/* 145 */
 /***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(146);
+if(typeof content === 'string') content = [[module.i, content, '']];
+if(content.locals) module.exports = content.locals;
+// add the styles to the DOM
+var update = __webpack_require__(38)("5db857ac", content, false);
+// Hot Module Replacement
+if(false) {
+ // When the styles change, update the <style> tags
+ if(!content.locals) {
+   module.hot.accept("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-03d995d8\",\"scoped\":true,\"hasInlineConfig\":true}!../../../../../node_modules/sass-loader/lib/loader.js!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./Index.vue", function() {
+     var newContent = require("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-03d995d8\",\"scoped\":true,\"hasInlineConfig\":true}!../../../../../node_modules/sass-loader/lib/loader.js!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./Index.vue");
+     if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+     update(newContent);
+   });
+ }
+ // When the module is disposed, remove the <style> tags
+ module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 146 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(37)(false);
+// imports
 
 
-var enhanceError = __webpack_require__(22);
+// module
+exports.push([module.i, "\n.pull-right[data-v-03d995d8] {\n  margin-right: 20px;\n}\n.text_center[data-v-03d995d8] {\n  vertical-align: middle;\n  text-align: center;\n}\n.kriteria[data-v-03d995d8] {\n  width: 150px;\n}\n", ""]);
 
-/**
- * Create an Error with the specified message, config, error code, request and response.
- *
- * @param {string} message The error message.
- * @param {Object} config The config.
- * @param {string} [code] The error code (for example, 'ECONNABORTED').
- * @param {Object} [request] The request.
- * @param {Object} [response] The response.
- * @returns {Error} The created error.
- */
-module.exports = function createError(message, config, code, request, response) {
-  var error = new Error(message);
-  return enhanceError(error, config, code, request, response);
-};
+// exports
 
 
 /***/ }),
-
-/***/ 9:
-/***/ (function(module, exports, __webpack_require__) {
+/* 147 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__config_env_config__ = __webpack_require__(10);
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
-module.exports = function isCancel(value) {
-  return !!(value && value.__CANCEL__);
-};
+/* harmony default export */ __webpack_exports__["default"] = ({
+	name: "Index",
+	data: function data() {
+		return {
+			table: {
+				data: []
+			},
+			kriteria: [],
+			form_search: '',
+			provinsi: []
+		};
+	},
 
+	methods: {
+		getKriteria: function getKriteria() {
+			var that = this;
+			that.$http.get(__WEBPACK_IMPORTED_MODULE_0__config_env_config__["b" /* base_url */] + '/select/kriteria').then(function (res) {
+				Vue.set(that.$data, 'kriteria', res.data);
+			});
+		},
+		getProvinsi: function getProvinsi() {
+			var that = this;
+			that.$http.get(__WEBPACK_IMPORTED_MODULE_0__config_env_config__["b" /* base_url */] + '/select/provinsi').then(function (res) {
+				Vue.set(that.$data, 'provinsi', res.data);
+			});
+		},
+		UpdateProvinsi: function UpdateProvinsi() {
+			var that = this;
+			that.$http.get('?provinsi=' + that.form_search).then(function (res) {
+				Vue.set(that.$data, 'table', res.data);
+			});
+		},
+		getData: function getData() {
+			var that = this;
+			that.$http.get('').then(function (res) {
+				Vue.set(that.$data, 'table', res.data);
+			});
+		},
+		next: function next() {
+			var that = this;
+			that.$http.get(that.table.next_page_url).then(function (res) {
+				Vue.set(that.$data, 'table', res.data);
+			});
+		},
+		prev: function prev() {
+			var that = this;
+			that.$http.get(that.table.prev_page_url).then(function (res) {
+				Vue.set(that.$data, 'table', res.data);
+			});
+		},
+		hapus: function hapus(id) {
+			var _this = this;
+
+			this.$swal({
+				title: "Apakah Anda Yakin?",
+				text: "",
+				type: "warning",
+				showCancelButton: true
+			}).then(function (result) {
+				if (result.value) {
+					var that = _this;
+					that.$http.delete('/' + id).then(function (res) {
+						_this.$swal({
+							title: "Deleted!",
+							text: res.data.message,
+							type: "success",
+							timer: 5000
+						}).then(function () {
+							that.getData();
+						});
+					});
+				}
+			});
+		},
+		check: function check(id) {
+			var _this2 = this;
+
+			var that = this;
+			that.$http.post('/' + id + '/check', '').then(function (res) {
+				_this2.$swal({
+					title: "check ",
+					text: res.data.message,
+					type: "success",
+					timer: 5000
+				}).then(function () {
+					that.getData();
+				});
+			});
+		}
+	},
+	beforeMount: function beforeMount() {
+		this.getData();
+		this.getKriteria();
+		this.getProvinsi();
+	}
+});
+
+/***/ }),
+/* 148 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("div", [
+    _vm._m(0),
+    _vm._v(" "),
+    _c("div", { staticClass: "row" }, [
+      _c("div", { staticClass: "col-lg-12" }, [
+        _c(
+          "div",
+          { staticClass: "content-panel" },
+          [
+            _c(
+              "router-link",
+              {
+                staticClass: "btn btn-success pull-right",
+                attrs: { to: { name: "create" } }
+              },
+              [_vm._v("Tambah Calon Daerah Pemasaran")]
+            ),
+            _vm._v(" "),
+            _vm._m(1),
+            _vm._v(" "),
+            _c("hr"),
+            _vm._v(" "),
+            _c("div", { staticClass: "form-group col-md-12" }, [
+              _c(
+                "select",
+                {
+                  directives: [
+                    {
+                      name: "model",
+                      rawName: "v-model",
+                      value: _vm.form_search,
+                      expression: "form_search"
+                    }
+                  ],
+                  staticClass: "form-control",
+                  on: {
+                    change: [
+                      function($event) {
+                        var $$selectedVal = Array.prototype.filter
+                          .call($event.target.options, function(o) {
+                            return o.selected
+                          })
+                          .map(function(o) {
+                            var val = "_value" in o ? o._value : o.value
+                            return val
+                          })
+                        _vm.form_search = $event.target.multiple
+                          ? $$selectedVal
+                          : $$selectedVal[0]
+                      },
+                      _vm.UpdateProvinsi
+                    ]
+                  }
+                },
+                [
+                  _c("option", { attrs: { value: "" } }, [
+                    _vm._v("Pilih Provinsi")
+                  ]),
+                  _vm._v(" "),
+                  _vm._l(_vm.provinsi, function(item) {
+                    return _c("option", { domProps: { value: item.id } }, [
+                      _vm._v(_vm._s(item.provinsi))
+                    ])
+                  })
+                ],
+                2
+              )
+            ]),
+            _vm._v(" "),
+            _c("hr"),
+            _vm._v(" "),
+            _c("table", { staticClass: "table table-bordered" }, [
+              _c("thead", [
+                _c(
+                  "tr",
+                  [
+                    _c("th", { staticClass: "text_center" }, [_vm._v("Kota")]),
+                    _vm._v(" "),
+                    _vm._l(_vm.kriteria, function(item) {
+                      return _c("th", { staticClass: "text_center kriteria" }, [
+                        _vm._v(_vm._s(item.kriteria))
+                      ])
+                    }),
+                    _vm._v(" "),
+                    _c("th", { attrs: { width: "150px" } }, [_vm._v("Aksi")])
+                  ],
+                  2
+                )
+              ]),
+              _vm._v(" "),
+              _vm.table.data.length > 0
+                ? _c(
+                    "tbody",
+                    _vm._l(_vm.table.data, function(item) {
+                      return _c(
+                        "tr",
+                        { class: { active: !item.status } },
+                        [
+                          _c("td", [_vm._v(_vm._s(item.nama_kota))]),
+                          _vm._v(" "),
+                          _vm._l(_vm.kriteria, function(k, i) {
+                            return _c("td", { staticClass: "text_center" }, [
+                              _vm._v(_vm._s(item.kriterias[i].nilai))
+                            ])
+                          }),
+                          _vm._v(" "),
+                          _c("td", [
+                            _c(
+                              "div",
+                              {
+                                directives: [
+                                  {
+                                    name: "show",
+                                    rawName: "v-show",
+                                    value: item.status,
+                                    expression: "item.status"
+                                  }
+                                ],
+                                staticClass: "btn-group btn-group-xs"
+                              },
+                              [
+                                _c(
+                                  "router-link",
+                                  {
+                                    staticClass: "btn btn-primary",
+                                    attrs: {
+                                      to: {
+                                        name: "edit",
+                                        params: { id: item.id }
+                                      }
+                                    }
+                                  },
+                                  [_vm._v("ubah")]
+                                ),
+                                _vm._v(" "),
+                                _c(
+                                  "a",
+                                  {
+                                    staticClass: "btn btn-danger",
+                                    on: {
+                                      click: function($event) {
+                                        _vm.hapus(item.id)
+                                      }
+                                    }
+                                  },
+                                  [_vm._v("hapus")]
+                                )
+                              ],
+                              1
+                            ),
+                            _vm._v(" "),
+                            _c(
+                              "a",
+                              {
+                                directives: [
+                                  {
+                                    name: "show",
+                                    rawName: "v-show",
+                                    value: !item.status,
+                                    expression: "!item.status"
+                                  }
+                                ],
+                                staticClass: "btn btn-success btn-xs",
+                                on: {
+                                  click: function($event) {
+                                    _vm.check(item.id)
+                                  }
+                                }
+                              },
+                              [_vm._v("tampilkan")]
+                            )
+                          ])
+                        ],
+                        2
+                      )
+                    })
+                  )
+                : _vm._e(),
+              _vm._v(" "),
+              _vm.table.data.length == 0 ? _c("tbody", [_vm._m(2)]) : _vm._e(),
+              _vm._v(" "),
+              _c("tfoot", [
+                _c("tr", [
+                  _c("td", { attrs: { colspan: 1 + _vm.kriteria.length } }),
+                  _vm._v(" "),
+                  _c("td", [
+                    _c(
+                      "a",
+                      {
+                        staticClass: "btn btn-info btn-xs",
+                        attrs: { disabled: _vm.table.prev_page_url === null },
+                        on: { click: _vm.prev }
+                      },
+                      [_c("i", { staticClass: "fa fa-arrow-left" })]
+                    ),
+                    _vm._v(" "),
+                    _c(
+                      "a",
+                      {
+                        staticClass: "btn btn-info btn-xs",
+                        attrs: { disabled: _vm.table.next_page_url === null },
+                        on: { click: _vm.next }
+                      },
+                      [_c("i", { staticClass: "fa fa-arrow-right" })]
+                    )
+                  ])
+                ])
+              ])
+            ])
+          ],
+          1
+        )
+      ])
+    ])
+  ])
+}
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("h5", [
+      _vm._v("\n\t\tCalon Daerah Pemasaran "),
+      _c("i", { staticClass: "fa fa-angle-right" }),
+      _vm._v("\n\t\tList Data Calon Daerah Pemasaran\n\t")
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("h4", [
+      _c("i", { staticClass: "fa fa-users" }),
+      _vm._v(" Data Calon Daerah Pemasaran")
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("tr", [
+      _c("td", { attrs: { colspan: "3" } }, [
+        _c("h1", [_vm._v("data yg dicari tidak ada")])
+      ])
+    ])
+  }
+]
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-03d995d8", module.exports)
+  }
+}
+
+/***/ }),
+/* 149 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+var normalizeComponent = __webpack_require__(1)
+/* script */
+var __vue_script__ = __webpack_require__(150)
+/* template */
+var __vue_template__ = __webpack_require__(151)
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources\\assets\\admin\\calon-daerah-pemasaran\\component\\show.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-5ecb59ea", Component.options)
+  } else {
+    hotAPI.reload("data-v-5ecb59ea", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 150 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+	name: 'Show',
+	props: ['id'],
+	data: function data() {
+		return {
+			data: {}
+		};
+	},
+
+	methods: {
+		getData: function getData() {
+			var that = this;
+			that.$http.get('/' + that.id).then(function (res) {
+				Vue.set(that.$data, 'data', res.data);
+			});
+		}
+	},
+	beforeMount: function beforeMount() {
+		this.getData();
+	}
+});
+
+/***/ }),
+/* 151 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("div", [
+    _c(
+      "h5",
+      [
+        _vm._v("\n\t\t\tCalon Daerah Pemasaran "),
+        _c("i", { staticClass: "fa fa-angle-right" }),
+        _vm._v(" "),
+        _c("router-link", { attrs: { to: { name: "index" } } }, [
+          _vm._v("List Data Calon Daerah Pemasaran")
+        ]),
+        _vm._v(" "),
+        _c("i", { staticClass: "fa fa-angle-right" }),
+        _vm._v("\n\t\t\tLihat Calon Daerah Pemasaran\n\t\t")
+      ],
+      1
+    ),
+    _vm._v(" "),
+    _c("div", { staticClass: "row" }, [
+      _c("div", { staticClass: "col-lg-12" }, [
+        _c("div", { staticClass: "form-panel" }, [
+          _vm._m(0),
+          _vm._v(" "),
+          _c("table", { staticClass: "table table-bordered" }, [
+            _c("tbody", [
+              _c("tr", [
+                _c("th", [_vm._v("Nama")]),
+                _vm._v(" "),
+                _c("td", [_vm._v(":")]),
+                _vm._v(" "),
+                _c("td", [_vm._v(_vm._s(_vm.data.nama))])
+              ]),
+              _vm._v(" "),
+              _c("tr", [
+                _c("th", [_vm._v("Email")]),
+                _vm._v(" "),
+                _c("td", [_vm._v(":")]),
+                _vm._v(" "),
+                _c("td", [_vm._v(_vm._s(_vm.data.email))])
+              ]),
+              _vm._v(" "),
+              _c("tr", [
+                _c("th", [_vm._v("Status")]),
+                _vm._v(" "),
+                _c("td", [_vm._v(":")]),
+                _vm._v(" "),
+                _c("td", [_vm._v(_vm._s(_vm.data.status))])
+              ])
+            ])
+          ])
+        ])
+      ])
+    ])
+  ])
+}
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("h4", { staticClass: "mb" }, [
+      _c("i", { staticClass: "fa fa-users" }),
+      _vm._v(" Form Lihat Calon Daerah Pemasaran")
+    ])
+  }
+]
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-5ecb59ea", module.exports)
+  }
+}
+
+/***/ }),
+/* 152 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+var normalizeComponent = __webpack_require__(1)
+/* script */
+var __vue_script__ = __webpack_require__(153)
+/* template */
+var __vue_template__ = __webpack_require__(154)
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources\\assets\\admin\\calon-daerah-pemasaran\\component\\Create.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-27f08fac", Component.options)
+  } else {
+    hotAPI.reload("data-v-27f08fac", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 153 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__config_env_config__ = __webpack_require__(10);
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+	name: 'Create',
+	data: function data() {
+		return {
+			data: {
+				provinsi: '',
+				kota: '',
+				kriterias: []
+			},
+			provinsi: [],
+			kota: [],
+			kriteria: []
+		};
+	},
+
+	methods: {
+		getDataProvinsi: function getDataProvinsi() {
+			var that = this;
+			that.$http.get(__WEBPACK_IMPORTED_MODULE_0__config_env_config__["b" /* base_url */] + '/select/provinsi').then(function (res) {
+				Vue.set(that.$data, 'provinsi', res.data);
+			});
+		},
+		getDataKota: function getDataKota() {
+			var that = this;
+			that.$http.get(__WEBPACK_IMPORTED_MODULE_0__config_env_config__["b" /* base_url */] + '/select/kota/' + that.data.provinsi).then(function (res) {
+				Vue.set(that.$data, 'kota', res.data);
+			});
+		},
+		getDataKriteria: function getDataKriteria() {
+			var _this = this;
+
+			var that = this;
+			that.$http.get(__WEBPACK_IMPORTED_MODULE_0__config_env_config__["b" /* base_url */] + '/select/kriteria').then(function (res) {
+				_this.data.kriterias = res.data;
+				Vue.set(that.$data, 'kriteria', res.data);
+			});
+		},
+		simpan: function simpan() {
+			var _this2 = this;
+
+			var that = this;
+			that.$http.post('', that.data).then(function (res) {
+				_this2.$swal({
+					text: res.data.message,
+					type: "success",
+					timer: 5000
+				}).then(function () {
+					_this2.$router.push({ name: 'index' });
+				});
+			});
+		}
+	},
+	beforeMount: function beforeMount() {
+		this.getDataKriteria();
+		this.getDataProvinsi();
+	}
+});
+
+/***/ }),
+/* 154 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("div", [
+    _c(
+      "h5",
+      [
+        _vm._v("\n\t\t\tCalon Daerah Pemasaran "),
+        _c("i", { staticClass: "fa fa-angle-right" }),
+        _vm._v(" "),
+        _c("router-link", { attrs: { to: { name: "index" } } }, [
+          _vm._v("List Data Calon Daerah Pemasaran")
+        ]),
+        _vm._v(" "),
+        _c("i", { staticClass: "fa fa-angle-right" }),
+        _vm._v("\n\t\t\tTambah Calon Daerah Pemasaran\n\t\t")
+      ],
+      1
+    ),
+    _vm._v(" "),
+    _c("div", { staticClass: "row" }, [
+      _c("div", { staticClass: "col-lg-12" }, [
+        _c("div", { staticClass: "form-panel" }, [
+          _vm._m(0),
+          _vm._v(" "),
+          _c(
+            "form",
+            {
+              staticClass: "form-horizontal",
+              on: {
+                submit: function($event) {
+                  $event.preventDefault()
+                  _vm.simpan($event)
+                }
+              }
+            },
+            [
+              _c("div", { staticClass: "form-group" }, [
+                _c(
+                  "label",
+                  {
+                    staticClass: "control-label col-md-2",
+                    attrs: { for: "provinsi" }
+                  },
+                  [_vm._v("Provinsi")]
+                ),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-md-10" }, [
+                  _c(
+                    "select",
+                    {
+                      directives: [
+                        {
+                          name: "model",
+                          rawName: "v-model",
+                          value: _vm.data.provinsi,
+                          expression: "data.provinsi"
+                        }
+                      ],
+                      staticClass: "form-control",
+                      attrs: { id: "provinsi" },
+                      on: {
+                        change: [
+                          function($event) {
+                            var $$selectedVal = Array.prototype.filter
+                              .call($event.target.options, function(o) {
+                                return o.selected
+                              })
+                              .map(function(o) {
+                                var val = "_value" in o ? o._value : o.value
+                                return val
+                              })
+                            _vm.$set(
+                              _vm.data,
+                              "provinsi",
+                              $event.target.multiple
+                                ? $$selectedVal
+                                : $$selectedVal[0]
+                            )
+                          },
+                          _vm.getDataKota
+                        ]
+                      }
+                    },
+                    _vm._l(_vm.provinsi, function(item) {
+                      return _c("option", { domProps: { value: item.id } }, [
+                        _vm._v(_vm._s(item.provinsi))
+                      ])
+                    })
+                  )
+                ])
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "form-group" }, [
+                _c(
+                  "label",
+                  {
+                    staticClass: "control-label col-md-2",
+                    attrs: { for: "kota" }
+                  },
+                  [_vm._v("Kota")]
+                ),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-md-10" }, [
+                  _c(
+                    "select",
+                    {
+                      directives: [
+                        {
+                          name: "model",
+                          rawName: "v-model",
+                          value: _vm.data.kota,
+                          expression: "data.kota"
+                        }
+                      ],
+                      staticClass: "form-control",
+                      attrs: { id: "kota" },
+                      on: {
+                        change: function($event) {
+                          var $$selectedVal = Array.prototype.filter
+                            .call($event.target.options, function(o) {
+                              return o.selected
+                            })
+                            .map(function(o) {
+                              var val = "_value" in o ? o._value : o.value
+                              return val
+                            })
+                          _vm.$set(
+                            _vm.data,
+                            "kota",
+                            $event.target.multiple
+                              ? $$selectedVal
+                              : $$selectedVal[0]
+                          )
+                        }
+                      }
+                    },
+                    _vm._l(_vm.kota, function(item) {
+                      return _c("option", { domProps: { value: item.id } }, [
+                        _vm._v(_vm._s(item.kota))
+                      ])
+                    })
+                  )
+                ])
+              ]),
+              _vm._v(" "),
+              _vm._l(_vm.data.kriterias, function(item, idx) {
+                return _c("div", { staticClass: "form-group" }, [
+                  _c(
+                    "label",
+                    {
+                      staticClass: "control-label col-md-2",
+                      attrs: { for: "nilai" }
+                    },
+                    [_vm._v("Nilai " + _vm._s(item.kriteria))]
+                  ),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "col-md-10" }, [
+                    _c("input", {
+                      directives: [
+                        {
+                          name: "model",
+                          rawName: "v-model",
+                          value: item.nilai,
+                          expression: "item.nilai"
+                        }
+                      ],
+                      key: item.id,
+                      staticClass: "form-control",
+                      attrs: { type: "text", id: "nilai" },
+                      domProps: { value: item.nilai },
+                      on: {
+                        input: function($event) {
+                          if ($event.target.composing) {
+                            return
+                          }
+                          _vm.$set(item, "nilai", $event.target.value)
+                        }
+                      }
+                    })
+                  ])
+                ])
+              }),
+              _vm._v(" "),
+              _c("button", { staticClass: "btn btn-default" }, [
+                _vm._v("Simpan")
+              ])
+            ],
+            2
+          )
+        ])
+      ])
+    ])
+  ])
+}
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("h4", { staticClass: "mb" }, [
+      _c("i", { staticClass: "fa fa-users" }),
+      _vm._v(" Form Tambah Calon Daerah Pemasaran")
+    ])
+  }
+]
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-27f08fac", module.exports)
+  }
+}
+
+/***/ }),
+/* 155 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+var normalizeComponent = __webpack_require__(1)
+/* script */
+var __vue_script__ = __webpack_require__(156)
+/* template */
+var __vue_template__ = __webpack_require__(157)
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources\\assets\\admin\\calon-daerah-pemasaran\\component\\Edit.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-4823fbb8", Component.options)
+  } else {
+    hotAPI.reload("data-v-4823fbb8", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 156 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__config_env_config__ = __webpack_require__(10);
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+	name: 'Edit',
+	props: ['id'],
+	data: function data() {
+		return {
+			data: {
+				provinsi_id: '',
+				kota_id: '',
+				kriterias: []
+			},
+			provinsi: [],
+			kota: [],
+			kriteria: []
+		};
+	},
+
+	methods: {
+		getData: function getData() {
+			var that = this;
+			that.$http.get('/' + that.id).then(function (res) {
+				Vue.set(that.$data, 'data', res.data);
+			});
+		},
+		getDataProvinsi: function getDataProvinsi() {
+			var that = this;
+			that.$http.get(__WEBPACK_IMPORTED_MODULE_0__config_env_config__["b" /* base_url */] + 'select/provinsi').then(function (res) {
+				Vue.set(that.$data, 'provinsi', res.data);
+			});
+		},
+		getDataKota: function getDataKota() {
+			var that = this;
+			that.$http.get(__WEBPACK_IMPORTED_MODULE_0__config_env_config__["b" /* base_url */] + 'select/kota/' + that.data.provinsi).then(function (res) {
+				Vue.set(that.$data, 'kota', res.data);
+			});
+		},
+		getDataKriteria: function getDataKriteria() {
+			var that = this;
+			that.$http.get(__WEBPACK_IMPORTED_MODULE_0__config_env_config__["b" /* base_url */] + 'select/kriteria').then(function (res) {
+				Vue.set(that.$data, 'kriteria', res.data);
+			});
+		},
+		simpan: function simpan() {
+			var _this = this;
+
+			var that = this;
+			that.$http.put('/' + this.data.id, this.data).then(function (res) {
+				_this.$swal({
+					text: res.data.message,
+					type: "success",
+					timer: 5000
+				}).then(function () {
+					_this.$router.push({ name: 'index' });
+				});
+			});
+		}
+	},
+	beforeMount: function beforeMount() {
+		this.getDataKriteria();
+		this.getDataProvinsi();
+		this.getData();
+	}
+});
+
+/***/ }),
+/* 157 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("div", [
+    _c(
+      "h5",
+      [
+        _vm._v("\n\t\t\tCalon Daerah Pemasaran "),
+        _c("i", { staticClass: "fa fa-angle-right" }),
+        _vm._v(" "),
+        _c("router-link", { attrs: { to: { name: "index" } } }, [
+          _vm._v("List Data Calon Daerah Pemasaran")
+        ]),
+        _vm._v(" "),
+        _c("i", { staticClass: "fa fa-angle-right" }),
+        _vm._v("\n\t\t\tEdit Calon Daerah Pemasaran\n\t\t")
+      ],
+      1
+    ),
+    _vm._v(" "),
+    _c("div", { staticClass: "row" }, [
+      _c("div", { staticClass: "col-lg-12" }, [
+        _c("div", { staticClass: "form-panel" }, [
+          _vm._m(0),
+          _vm._v(" "),
+          _c(
+            "form",
+            {
+              staticClass: "form-horizontal",
+              on: {
+                submit: function($event) {
+                  $event.preventDefault()
+                  _vm.simpan($event)
+                }
+              }
+            },
+            [
+              _vm._l(_vm.data.kriterias, function(item, idx) {
+                return _c("div", { staticClass: "form-group" }, [
+                  _c(
+                    "label",
+                    {
+                      staticClass: "control-label col-md-2",
+                      attrs: { for: "nilai" }
+                    },
+                    [_vm._v("Nilai " + _vm._s(item.kriteria))]
+                  ),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "col-md-10" }, [
+                    _c("input", {
+                      directives: [
+                        {
+                          name: "model",
+                          rawName: "v-model",
+                          value: item.nilai,
+                          expression: "item.nilai"
+                        }
+                      ],
+                      key: item.id,
+                      staticClass: "form-control",
+                      attrs: { type: "text", id: "nilai" },
+                      domProps: { value: item.nilai },
+                      on: {
+                        input: function($event) {
+                          if ($event.target.composing) {
+                            return
+                          }
+                          _vm.$set(item, "nilai", $event.target.value)
+                        }
+                      }
+                    })
+                  ])
+                ])
+              }),
+              _vm._v(" "),
+              _c("button", { staticClass: "btn btn-default" }, [
+                _vm._v("Simpan")
+              ])
+            ],
+            2
+          )
+        ])
+      ])
+    ])
+  ])
+}
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("h4", { staticClass: "mb" }, [
+      _c("i", { staticClass: "fa fa-users" }),
+      _vm._v(" Form Edit Calon Daerah Pemasaran")
+    ])
+  }
+]
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-4823fbb8", module.exports)
+  }
+}
 
 /***/ })
-
-/******/ });
+/******/ ]);
