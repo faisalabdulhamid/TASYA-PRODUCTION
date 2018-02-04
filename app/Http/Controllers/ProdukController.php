@@ -55,7 +55,7 @@ class ProdukController extends Controller
         $this->validate($request, [
             'nama' => 'required',
             'kode' => 'required|unique:produk',
-            'harga' => 'required',
+            'harga' => 'required|numeric',
             'gambar' => 'required',
             'deskripsi' => 'required',
         ]);
@@ -107,7 +107,7 @@ class ProdukController extends Controller
         $this->validate($request, [
             'nama' => 'required',
             'kode' => 'required',
-            'harga' => 'required',
+            'harga' => 'required|numeric',
             'gambar' => 'required',
             'deskripsi' => 'required',
         ]);

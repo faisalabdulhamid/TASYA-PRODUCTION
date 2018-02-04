@@ -37,16 +37,23 @@
 				      <th width="150px">Aksi</th>
 				  </tr>
 				  </thead>
-				  <tbody>
-				  <tr v-for="item in table.data">
-				      <td>{{item.nama}}</td>
-				      <td>{{item.email}}</td>
-				      <td>
-						<router-link class="btn btn-success btn-xs" :to="{ name: 'show', params: { id: item.id }}">lihat</router-link>
-						<router-link class="btn btn-primary btn-xs" :to="{ name: 'edit', params: { id: item.id }}">ubah</router-link>
-						<a v-on:click="hapus(item.id)" class="btn btn-danger btn-xs">hapus</a>
-				      </td>
-				  </tr>
+				  <tbody v-if="table.data.length > 0">
+					  <tr v-for="item in table.data">
+					      <td>{{item.nama}}</td>
+					      <td>{{item.email}}</td>
+					      <td>
+							<router-link class="btn btn-success btn-xs" :to="{ name: 'show', params: { id: item.id }}">lihat</router-link>
+							<router-link class="btn btn-primary btn-xs" :to="{ name: 'edit', params: { id: item.id }}">ubah</router-link>
+							<a v-on:click="hapus(item.id)" class="btn btn-danger btn-xs">hapus</a>
+					      </td>
+					  </tr>
+				  </tbody>
+				  <tbody v-if="table.data.length == 0">
+				  	<tr>
+				  		<td  colspan="3">
+				  			<h1>data yg dicari tidak ada</h1>
+				  		</td>
+				  	</tr>
 				  </tbody>
 				  <tfoot>
 				  	<tr>
@@ -96,8 +103,8 @@
 			},
 			hapus(id){
 				this.$swal({
-					title: "Are you sure?",
-					text: "Are you sure that you want to leave this page?",
+					title: "Apakah Anda Yakin?",
+					text: "",
 					type: "warning",
 					showCancelButton: true,
 				})

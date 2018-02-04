@@ -1,14 +1,14 @@
 <template>
 	<div>
 		<h5>
-			Kriteria Daerah Pemasaran <i class="fa fa-angle-right"></i>
-			<router-link :to="{ name: 'index'}">List Data Kriteria Daerah Pemasaran</router-link> <i class="fa fa-angle-right"></i>
-			Tambah Kriteria Daerah Pemasaran
+			Kriteria Distributor <i class="fa fa-angle-right"></i>
+			<router-link :to="{ name: 'index'}">List Data Kriteria Distributor</router-link> <i class="fa fa-angle-right"></i>
+			Tambah Kriteria Distributor
 		</h5>
 		<div class="row">
 		  	<div class="col-lg-12">
 			  	<div class="form-panel">
-	          	  	<h4 class="mb"><i class="fa fa-users"></i> Form Tambah Kriteria Daerah Pemasaran</h4>
+	          	  	<h4 class="mb"><i class="fa fa-users"></i> Form Tambah Kriteria Distributor</h4>
 	              	<form class="form-horizontal" v-on:submit.prevent="simpan">
 						<div class="form-group">
 							<label for="kriteria" class="control-label col-md-2">Kriteria</label>

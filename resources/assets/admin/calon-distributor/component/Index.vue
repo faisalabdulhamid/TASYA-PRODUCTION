@@ -25,7 +25,7 @@
 				      <th width="150px">Aksi</th>
 				  </tr>
 				  </thead>
-				  <tbody>
+				  <tbody v-if="table.data.length > 0">
 				  <tr v-for="item in table.data" :class="{'active': !item.status}">
 				      <td>{{item.nama_pelanggan}}</td>
 				      <td v-for="(k, i) in kriteria" class="text_center">{{item.kriterias[i].nilai}}</td>
@@ -37,6 +37,13 @@
 						<a v-show="!item.status" v-on:click="check(item.id)" class="btn btn-success btn-xs">tampilkan</a>
 				      </td>
 				  </tr>
+				  </tbody>
+				  <tbody v-if="table.data.length == 0">
+				  	<tr>
+				  		<td  colspan="3">
+				  			<h1>data yg dicari tidak ada</h1>
+				  		</td>
+				  	</tr>
 				  </tbody>
 				  <tfoot>
 				  	<tr>

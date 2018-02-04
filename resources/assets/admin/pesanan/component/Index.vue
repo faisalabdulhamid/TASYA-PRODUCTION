@@ -19,7 +19,8 @@
 									<label for="" class="control-label col-md-2">Cari</label>
 									<div class="col-md-10">
 										<div class="input-group">
-									      <input type="text" class="form-control" placeholder="Cari ..." v-model="cari">
+									      <input type="text" class="form-control" id="cari" placeholder="Cari ..." v-model="cari">
+									      <!-- <date-range-picker :id="cari"/> -->
 									      <span class="input-group-btn">
 									        <button class="btn btn-info" type="button" v-on:click="search">Cari</button>
 									      </span>
@@ -37,15 +38,22 @@
 				      <th width="150px">Aksi</th>
 				  </tr>
 				  </thead>
-				  <tbody>
-				  <tr v-for="item in table.data">
-				      <td>{{item.nama_pelanggan}}</td>
-				      <td>{{item.tanggal}}</td>
-				      <td>{{item.total_bayar}}</td>
-				      <td>
-						<router-link class="btn btn-success btn-xs" :to="{ name: 'show', params: { id: item.id }}">lihat</router-link>
-				      </td>
-				  </tr>
+				  <tbody v-if="table.data.length > 0">
+					  <tr v-for="item in table.data">
+					      <td>{{item.nama_pelanggan}}</td>
+					      <td>{{item.tanggal}}</td>
+					      <td>{{item.total_bayar}}</td>
+					      <td>
+							<router-link class="btn btn-success btn-xs" :to="{ name: 'show', params: { id: item.id }}">lihat</router-link>
+					      </td>
+					  </tr>
+				  </tbody>
+				  <tbody v-if="table.data.length == 0">
+				  	<tr>
+				  		<td  colspan="4">
+				  			<h1>data yg dicari tidak ada</h1>
+				  		</td>
+				  	</tr>
 				  </tbody>
 				  <tfoot>
 				  	<tr>
@@ -60,17 +68,31 @@
 			</div>
 		  </div>
 		</div>
-		
+		<date-picker v-model="date"></date-picker>
 	</div>
 </template>
 
 <script>
+	import moment from 'moment'
+	// import 'eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.css'
+	import datePicker from 'vue-bootstrap-datetimepicker'
+
 	export default{
 		name: "IndexPesanan",
+		components: {
+			datePicker
+		},
 		data(){
 			return {
-				table: {},
-				cari: ''
+				table: {
+					data: []
+				},
+				cari: '',
+				date: new Date(),
+		        config: {
+		          format: 'DD/MM/YYYY',
+		          useCurrent: false,
+		        }      
 			}
 		},
 		methods:{
@@ -104,10 +126,20 @@
 					Vue.set(this.$data, 'table', res.data)
 				})
 			}
-			
 		},
 		beforeMount(){
 			this.getData()
+		},
+		mounted (){
+			// $('input#cari').daterangepicker({
+			// 	opens: 'left',
+			// 	singleDatePicker: true,
+			// 	showDropdowns: true,
+			// 	locale: {
+			// 		format: 'YYYY'
+			// 	},
+			// 	// minDate: moment()
+			// })
 		}
 	}
 </script>

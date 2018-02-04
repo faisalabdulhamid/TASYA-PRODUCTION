@@ -33,7 +33,7 @@
 							<div class="col-md-10">
 								<select class="form-control" id="status" v-model="data.status">
 									<option value="marketing">Marketing</option>
-									<option value="admin">Admin</option>
+									<option value="admin">Administrasi</option>
 								</select>
 							</div>
 						</div>

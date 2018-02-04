@@ -25,18 +25,25 @@
 				      <th width="150px">Aksi</th>
 				  </tr>
 				  </thead>
-				  <tbody>
+				  <tbody v-if="table.data.length > 0">
 				  <tr v-for="item in table.data" :class="{'active': !item.status}">
 				      <td>{{item.nama_kota}}</td>
 				      <td v-for="(k, i) in kriteria" class="text_center">{{item.kriterias[i].nilai}}</td>
 				      <td>
 						<div class="btn-group btn-group-xs" v-show="item.status">
 							<router-link class="btn btn-primary" :to="{ name: 'edit', params: { id: item.id }}">ubah</router-link>
-							<a v-on:click="hapus(item.id)" class="btn btn-danger"><i class="fa fa-times"></i></a>
+							<a v-on:click="hapus(item.id)" class="btn btn-danger">hapus</a>
 						</div>
 						<a v-show="!item.status" v-on:click="check(item.id)" class="btn btn-success btn-xs">tampilkan</a>
 				      </td>
 				  </tr>
+				  </tbody>
+				  <tbody v-if="table.data.length == 0">
+				  	<tr>
+				  		<td  colspan="3">
+				  			<h1>data yg dicari tidak ada</h1>
+				  		</td>
+				  	</tr>
 				  </tbody>
 				  <tfoot>
 				  	<tr>
@@ -60,7 +67,9 @@
 		name: "Index",
 		data(){
 			return {
-				table: {},
+				table: {
+					data: []
+				},
 				kriteria: [],
 				form_search: '',
 				provinsi: [],
@@ -111,8 +120,8 @@
 			},
 			hapus(id){
 				this.$swal({
-					title: "Are you sure?",
-					text: "Are you sure that you want to leave this page?",
+					title: "Apakah Anda Yakin?",
+					text: "",
 					type: "warning",
 					showCancelButton: true,
 				})
