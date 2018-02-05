@@ -37,7 +37,7 @@ _http.interceptors.response.use((response) => {
         })
         
         swal({
-          title: error.response.data.message,
+          title: '',
           html: contentHtml,
           type: 'error',
           timer: 5000,

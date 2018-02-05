@@ -35,7 +35,7 @@ _http.interceptors.response.use((response) => {
           contentHtml +=  '<p class="text-danger">'+error.response.data.errors[key][0]+'</p>'
         })
         swal({
-          title: error.response.data.message,
+          title: '',
           html: contentHtml,
           type: 'error',
           timer: 5000,
