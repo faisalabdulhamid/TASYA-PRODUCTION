@@ -19,9 +19,11 @@ Route::group(['prefix' => 'tasya'], function ()
 		'names' => ['index' => 'pegawai']
 	]);
 	Route::resource('produk', 'ProdukController', [
-		'except' => ['edit', 'create'],
+		'except' => ['edit', 'create', 'update'],
 		'names' => ['index' => 'produk']
 	]);
+	Route::post('produk/{produk}', 'ProdukController@update');
+	
 	Route::resource('provinsi', 'ProvinsiController', [
 		'except' => ['edit', 'create'],
 		'names' => ['index' => 'provinsi']
@@ -62,7 +64,7 @@ Route::group(['prefix' => 'tasya'], function ()
 	]);
 
 
-	Route::group(['middleware' => 'auth', 'prefix'=>'select', 'as'=>'select.'], function(){
+	Route::group(['prefix'=>'select', 'as'=>'select.'], function(){
 		Route::get('provinsi', function(){
 			$provinsi = App\Entities\Provinsi::all();
 			return response()->json($provinsi);

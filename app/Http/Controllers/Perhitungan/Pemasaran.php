@@ -120,7 +120,7 @@ class Pemasaran
 		foreach ($this->nilai_r as $index_kota => $kota) {
 			$kt = [];
 			//add Kota
-			$kt['kota'] = $this->kota[$index_kota]['kota'];
+			$kt['kota'] = $thi/.];
 
 			foreach ($kota as $index_matrix_r => $matrix_r) {
 				$r = $matrix_r;

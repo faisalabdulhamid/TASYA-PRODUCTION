@@ -47,10 +47,23 @@ class KriteriaDaerahPemasaranController extends Controller
      */
     public function store(Request $request)
     {
+        
         $this->validate($request, [
             'kriteria' => 'required',
             'bobot' => 'required|numeric|between:0.1,1',
         ]);
+
+        $k = Kriteria::all();
+        $hasil = $k->reduce(function ($carry, $item)
+        {
+            return $carry + $item->bobot;
+        });
+
+        if (($hasil + $request->bobot) > 1) {
+            return response()->json([
+                'message' => 'Data Melebihi 1'
+            ], 402);
+        }
 
         $kriterium = new Kriteria();
         $kriterium->kriteria = $request->kriteria;
@@ -98,6 +111,18 @@ class KriteriaDaerahPemasaranController extends Controller
             'kriteria' => 'required',
             'bobot' => 'required|numeric|between:0.1,1',
         ]);
+        $k = Kriteria::whereNotIn('id', [$kriterium])->get();
+        $hasil = $k->reduce(function ($carry, $item)
+        {
+            return $carry + $item->bobot;
+        });
+
+        if (($hasil + $request->bobot) > 1) {
+            return response()->json([
+                'message' => 'Data Melebihi 1'
+            ], 402);
+        }
+
         $kriteria = Kriteria::find($kriterium);
         $kriteria->kriteria = $request->kriteria;
         $kriteria->bobot = $request->bobot;

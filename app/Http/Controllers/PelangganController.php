@@ -57,14 +57,16 @@ class PelangganController extends Controller
             'no_telepon' => 'required|unique:pelanggan',
             'alamat' => 'required',
             'kota' => 'required',
+            'provinsi' => 'required',
         ]);
 
-        $pegawai = new Pelanggan();
-        $pegawai->nama = $request->nama;
-        $pegawai->no_telepon = $request->no_telepon;
-        $pegawai->alamat = $request->alamat;
-        $pegawai->kota = $request->kota;
-        $pegawai->save();
+        $pelanggan = new Pelanggan();
+        $pelanggan->nama = $request->nama;
+        $pelanggan->no_telepon = $request->no_telepon;
+        $pelanggan->alamat = $request->alamat;
+        $pelanggan->provinsi_id = $request->provinsi;
+        $pelanggan->kota_id = $request->kota;
+        $pelanggan->save();
 
         return response()->json([
             'message' => 'Data Berhasil Ditambahkan'
@@ -101,20 +103,23 @@ class PelangganController extends Controller
      * @param  \App\Entities\Pelanggan  $pelanggan
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Pelanggan $pelanggan)
+    public function update(Request $request, $id)
     {
         $this->validate($request, [
             'nama' => 'required',
             'no_telepon' => 'required',
             'alamat' => 'required',
             'kota' => 'required',
+            'provinsi' => 'required',
         ]);
+        $pelanggan = Pelanggan::find($id);
 
-        $pegawai->nama = $request->nama;
-        $pegawai->no_telepon = $request->no_telepon;
-        $pegawai->alamat = $request->alamat;
-        $pegawai->kota = $request->kota;
-        $pegawai->save();
+        $pelanggan->nama = $request->nama;
+        $pelanggan->no_telepon = $request->no_telepon;
+        $pelanggan->alamat = $request->alamat;
+        $pelanggan->provinsi_id = $request->provinsi;
+        $pelanggan->kota_id = $request->kota;
+        $pelanggan->save();
 
         return response()->json([
             'message' => 'Data Berhasil Diubah'

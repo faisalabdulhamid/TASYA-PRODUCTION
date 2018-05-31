@@ -51,12 +51,14 @@ class KriteriaDistributorController extends Controller
             'kriteria' => 'required',
             'bobot' => 'required|numeric|between:0.1,1',
             'benefit' => 'required',
+            '*.*.jawaban' => 'required',
         ]);
 
         $kriterium = new Kriteria();
         $kriterium->kriteria = $request->kriteria;
         $kriterium->bobot = $request->bobot;
         $kriterium->benefit = $request->benefit;
+        $kriterium->jawaban = $request->jawaban_1;
         $kriterium->save();
 
         return response()->json([
@@ -70,10 +72,19 @@ class KriteriaDistributorController extends Controller
      * @param  \App\Entities\Kriteria  $kriterium
      * @return \Illuminate\Http\Response
      */
-    public function show($kriterium)
+    public function show($id)
     {
-        $kriteria = Kriteria::find($kriterium);
-        return response()->json($kriteria);
+        $k = Kriteria::find($id);
+
+        // $kriteria = [
+        //     'id' => $k->id,
+        //     'kriteria' => $k['kriteria'],
+        //     'bobot' => $k->bobot,
+        //     'benefit' => $k->benefit, 
+        //     'jawaban' => $k->jawaban,
+        // ];
+
+        return response()->json($k);
     }
 
     /**
@@ -99,12 +110,14 @@ class KriteriaDistributorController extends Controller
         $this->validate($request, [
             'kriteria' => 'required',
             'bobot' => 'required|numeric|between:0.1,1',
+            '*.*.jawaban' => 'required',
         ]);
 
         $kriteria = Kriteria::find($kriterium);
         $kriteria->kriteria = $request->kriteria;
         $kriteria->bobot = $request->bobot;
         $kriteria->benefit = $request->benefit;
+        $kriteria->jawaban = $request->jawaban_1;
         $kriteria->save();
 
         return response()->json([

@@ -58,12 +58,13 @@ class ProdukController extends Controller
             'harga' => 'required|numeric',
             'gambar' => 'required|file|max:2000',
             'deskripsi' => 'required',
+            'kategori' => 'required',
         ]);
 
         $uploadedFile = $request->file('gambar');
 
         if ($uploadedFile->isValid()) {
-            $path = $uploadedFile->store('');
+            $path = $uploadedFile->store('', 'produk');
 
             $produk = new Produk();
             $produk->nama = $request->nama;
@@ -71,6 +72,7 @@ class ProdukController extends Controller
             $produk->harga = $request->harga;
             $produk->gambar = url('/images/produk/'.$path);
             $produk->deskripsi = $request->deskripsi;
+            $produk->kategori_id = $request->kategori;
             $produk->save();
 
             return response()->json([
@@ -88,6 +90,16 @@ class ProdukController extends Controller
      */
     public function show(Produk $produk)
     {
+        $produk= [
+            'id' => $produk->id,
+            'kode' => $produk->kode,
+            'nama' => $produk->nama,
+            'harga' => $produk->harga,
+            'deskripsi' => $produk->deskripsi, 
+            'gambar' => $produk->gambar,
+            'kategori' => $produk->kategori_id,
+        ];
+
         return response()->json($produk);
     }
 
@@ -109,7 +121,7 @@ class ProdukController extends Controller
      * @param  \App\Entities\Produk  $produk
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Produk $produk)
+    public function update(Request $request, $id)
     {
         $this->validate($request, [
             'nama' => 'required',
@@ -117,18 +129,27 @@ class ProdukController extends Controller
             'harga' => 'required|numeric',
             'gambar' => 'required',
             'deskripsi' => 'required',
+            'kategori' => 'required',
         ]);
 
-        $produk->nama = $request->nama;
-        $produk->kode = $request->kode;
-        $produk->harga = $request->harga;
-        $produk->gambar = $request->gambar;
-        $produk->deskripsi = $request->deskripsi;
-        $produk->save();
+        $uploadedFile = $request->file('gambar');
 
-        return response()->json([
-            'message' => 'Data Berhasil Diubah'
-        ], 201);
+        if ($uploadedFile->isValid()) {
+            $path = $uploadedFile->store('', 'produk');
+
+            $produk = Produk::find($id);
+            $produk->nama = $request->nama;
+            $produk->kode = $request->kode;
+            $produk->harga = $request->harga;
+            $produk->gambar = url('/images/produk/'.$path);
+            $produk->deskripsi = $request->deskripsi;
+            $produk->kategori_id = $request->kategori;
+            $produk->save();
+
+            return response()->json([
+                'message' => 'Data Berhasil Ditambahkan'
+            ], 201);
+        }
     }
 
     /**

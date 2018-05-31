@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Entities\CalonDaerahPemasaran;
+use App\Entities\KriteriaDaerahPemasaran;
 use App\Http\Controllers\Perhitungan\Pemasaran;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -11,7 +12,7 @@ class CalonDaerahPemasaranController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth');
+        // $this->middleware('auth');
     }
     /**
      * Display a listing of the resource.
@@ -24,13 +25,16 @@ class CalonDaerahPemasaranController extends Controller
             $calon = CalonDaerahPemasaran::with(['kriterias' => function($q){
                 $q->select('id', 'nilai');
             }])->has('kota.provinsi')->whereHas('kota.provinsi', function($query) {
+                
                 if (!is_null(request()->provinsi)) {
                     $query->where('id', request()->provinsi);
                 }
+
             })->paginate(10);
 
             return response()->json($calon);
         }
+
         $title = 'Calon Daerah Pemasaran';
         $script = asset('js/calon-daerah-pemasaran.js');
 
@@ -91,7 +95,12 @@ class CalonDaerahPemasaranController extends Controller
         $calon = CalonDaerahPemasaran::with(['kriterias' => function($q){
             $q->select('id', 'kriteria', 'nilai');
         }])->get()->find($id);
-        return response()->json($calon);
+
+        $kriteria = KriteriaDaerahPemasaran::all();
+        return response()->json([
+            'calon' => $calon,
+            'kriteria' => $kriteria
+        ]);
     }
 
     /**
@@ -119,15 +128,24 @@ class CalonDaerahPemasaranController extends Controller
             '*.*.nilai' => 'required|numeric'
         ]);
 
+        // DB::transaction(function()use($request, $id){
+        //     $calon = CalonDaerahPemasaran::find($id);
+        //     // $calon->kota_id = $request->kota;
+        //     // $calon->save();
+        //     // $calon->kriterias()->sync($request->kriterias);
+        //     foreach ($request->kriterias as $key => $value) {
+        //         $calon->kriterias()->sync([$value['id'] => ['nilai' => $value['nilai']]]);
+        //     }
+            
+        // });
+
         DB::transaction(function()use($request, $id){
             $calon = CalonDaerahPemasaran::find($id);
-            // $calon->kota_id = $request->kota;
-            // $calon->save();
-            // $calon->kriterias()->sync($request->kriterias);
+            $data = [];
             foreach ($request->kriterias as $key => $value) {
-                $calon->kriterias()->sync([$value['id'] => ['nilai' => $value['nilai']]]);
+                $data[$value['id']] = ['nilai' => $value['nilai']];
             }
-            
+            $calon->kriterias()->sync($data); 
         });
 
         return response()->json([

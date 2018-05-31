@@ -12,7 +12,7 @@ class ClientController extends Controller
     public function index()
     {
         if (request()->wantsJson()) {
-            $product = Produk::paginate(12);
+            $product = Produk::all();
             return response()->json($product);
         }
         return view('client');

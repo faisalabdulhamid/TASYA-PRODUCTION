@@ -17,8 +17,20 @@ class PesananController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
+        if ($request->awal || $request->akhir) {
+            $hasil = DB::table('pelanggan')
+                // ->select('pelanggan.*')
+                ->select(DB::raw('pelanggan.id, pelanggan.nama, SUM(detail_pesanan.sub_total) as rata_rata'))
+                ->join('pesanan', 'pesanan.pelanggan_id', '=', 'pelanggan.id')
+                ->join('detail_pesanan', 'pesanan.id', '=', 'detail_pesanan.pesanan_id')
+                ->whereBetween('pesanan.tanggal', [$request->awal, $request->akhir])
+                ->groupBy('id')
+                ->get();
+
+            return $hasil;
+        }
         if (request()->wantsJson()) {
             $pesanan = Pesanan::paginate(10); 
 

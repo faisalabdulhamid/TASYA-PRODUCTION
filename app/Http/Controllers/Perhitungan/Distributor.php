@@ -50,7 +50,7 @@ class Distributor
 
 		$this->kriteria = $pelanggan_kriteria->map(function($item, $key){
 			return [
-				'pelanggan_id' => $item->id,
+				'pelanggan_id' => $item->pelanggan_id,
 				'kriteria'=> $item->kriterias->map(function($val, $k) use($item, $key){
 					return [
 						'kriteria_id' => $val->id,
@@ -123,6 +123,7 @@ class Distributor
 		$result = $data->map(function($item, $key)use($pelanggan){
 			return [
 				'pelanggan' => $pelanggan->find($item['pelanggan_id']),
+				'pelanggan_id' => $item['pelanggan_id'],
 				'nilai_v' => $item['nilai_v'],
 				'nilai_s'=> $item['nilai_s'],
 			];

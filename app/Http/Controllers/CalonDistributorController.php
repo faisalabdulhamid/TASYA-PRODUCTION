@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Entities\CalonDistributor;
+use App\Entities\KriteriaDistributor;
 use App\Http\Controllers\Perhitungan\Distributor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -21,16 +22,23 @@ class CalonDistributorController extends Controller
     public function index()
     {
         if (request()->wantsJson()) {
-            $calon = CalonDistributor::with(['kriterias' => function($q){
-                $q->select('id', 'nilai');
+            $kriteria = KriteriaDistributor::all();
+            $calon = CalonDistributor::with(['kriterias' => function ($q)
+            {
+                $q->select('nilai', 'kriteria_id');
             }])->has('pelanggan.kota.provinsi')
-            ->whereHas('pelanggan.kota', function($query) {
+            ->whereHas('pelanggan.kota', function ($q)
+            {
                 if (!is_null(request()->provinsi)) {
-                    $query->where('provinsi_id', request()->provinsi);
+                    $q->where('provinsi_id', request()->provinsi);
                 }
-            })->paginate(10);
+            })
+            ->get();
 
-            return response()->json($calon);
+            return response()->json([
+                'kriteria' => $kriteria,
+                'calon' => $calon
+            ]);
         }
         $title = 'Calon Distributor';
         $script = asset('js/calon-distributor.js');
@@ -86,7 +94,11 @@ class CalonDistributorController extends Controller
         $dis = CalonDistributor::with(['kriterias' => function($q){
             $q->select('id', 'kriteria', 'nilai');
         }])->get()->find($id);
-        return response()->json($dis);
+        $kriteria = KriteriaDistributor::all();
+        return response()->json([
+            'distributor' => $dis,
+            'kriteria' => $kriteria
+        ]);
     }
 
     /**
@@ -109,7 +121,23 @@ class CalonDistributorController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $this->validate($request, [
+            // 'pelanggan' => 'required|unique:calon_distributor,pelanggan_id',
+            '*.*.nilai' => 'required|numeric'
+        ]);
+
+        DB::transaction(function()use($request, $id){
+            $calon = CalonDistributor::find($id);
+            $data = [];
+            foreach ($request->kriterias as $key => $value) {
+                $data[$value['id']] = ['nilai' => $value['nilai']];
+            }
+            $calon->kriterias()->sync($data); 
+        });
+
+        return response()->json([
+            'message' => 'Data Berhasil DiUbah'
+        ], 201);
     }
 
     /**
